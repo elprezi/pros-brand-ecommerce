@@ -511,28 +511,52 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const activeVersion = cmsVersions[0]?.version || 'v1.0';
 
   useEffect(() => {
-    localStorage.setItem(CMS_PUBLISHED_KEY, JSON.stringify(publishedCms));
+    try {
+      localStorage.setItem(CMS_PUBLISHED_KEY, JSON.stringify(publishedCms));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (publishedCms):', e);
+    }
   }, [publishedCms]);
 
   useEffect(() => {
-    localStorage.setItem(CMS_DRAFT_KEY, JSON.stringify(draftCms));
-    setPublishedCms(draftCms);
+    try {
+      localStorage.setItem(CMS_DRAFT_KEY, JSON.stringify(draftCms));
+      setPublishedCms(draftCms);
+    } catch (e) {
+      console.warn('LocalStorage quota warning (draftCms):', e);
+    }
   }, [draftCms]);
 
   useEffect(() => {
-    localStorage.setItem(CMS_MEDIA_KEY, JSON.stringify(mediaLibrary));
+    try {
+      localStorage.setItem(CMS_MEDIA_KEY, JSON.stringify(mediaLibrary));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (mediaLibrary):', e);
+    }
   }, [mediaLibrary]);
 
   useEffect(() => {
-    localStorage.setItem(CMS_BANNERS_KEY, JSON.stringify(banners));
+    try {
+      localStorage.setItem(CMS_BANNERS_KEY, JSON.stringify(banners));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (banners):', e);
+    }
   }, [banners]);
 
   useEffect(() => {
-    localStorage.setItem(CMS_VERSIONS_KEY, JSON.stringify(cmsVersions));
+    try {
+      localStorage.setItem(CMS_VERSIONS_KEY, JSON.stringify(cmsVersions));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (cmsVersions):', e);
+    }
   }, [cmsVersions]);
 
   useEffect(() => {
-    localStorage.setItem(CMS_AUDIT_KEY, JSON.stringify(cmsAuditLogs));
+    try {
+      localStorage.setItem(CMS_AUDIT_KEY, JSON.stringify(cmsAuditLogs));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (cmsAuditLogs):', e);
+    }
   }, [cmsAuditLogs]);
 
   // Log action

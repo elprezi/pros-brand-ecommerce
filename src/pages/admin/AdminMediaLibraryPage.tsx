@@ -16,6 +16,7 @@ import {
   X,
   Eye,
 } from 'lucide-react';
+import { compressImageFile } from '../../lib/utils/imageCompressor';
 
 export const AdminMediaLibraryContent: React.FC = () => {
   const { mediaLibrary, uploadMedia, deleteMedia, updateMediaAlt, getMediaUsage } = useCms();
@@ -34,8 +35,8 @@ export const AdminMediaLibraryContent: React.FC = () => {
     usages: MediaUsageRef[];
   } | null>(null);
 
-  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
-    setToastMessage({ type, msg });
+  const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToastMessage({ type: type === 'info' ? 'success' : type, msg });
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -60,8 +61,8 @@ export const AdminMediaLibraryContent: React.FC = () => {
   const totalSizeKb = mediaLibrary.reduce((sum, m) => sum + (m.sizeKb || 0), 0);
   const totalSizeMb = (totalSizeKb / 1024).toFixed(2);
 
-  // File Upload Handler with Permanent Base64 Data URL Persistence
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Async Multi-File Upload Handler with HTML5 Canvas Compression
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasPermission('UPLOAD_MEDIA')) {
       showToast("Vous n'avez pas la permission de téléverser des médias.", 'error');
       return;
@@ -69,25 +70,28 @@ export const AdminMediaLibraryContent: React.FC = () => {
 
     const files = e.target.files;
     if (files && files.length > 0) {
-      Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const dataUrl = event.target?.result as string;
-          if (dataUrl) {
+      const fileList = Array.from(files);
+      showToast(`Téléversement et optimisation de ${fileList.length} image(s) en cours...`, 'info');
+
+      for (const file of fileList) {
+        try {
+          const compressed = await compressImageFile(file, 1600, 1600, 0.82);
+          if (compressed.dataUrl) {
             uploadMedia({
               filename: file.name,
-              url: dataUrl,
+              url: compressed.dataUrl,
               altText: file.name.replace(/\.[^/.]+$/, ''),
-              sizeKb: Math.round(file.size / 1024),
+              sizeKb: compressed.sizeKb || Math.round(file.size / 1024),
               mimeType: file.type || 'image/jpeg',
-              width: 1920,
-              height: 1080,
+              width: compressed.width || 1920,
+              height: compressed.height || 1080,
             });
           }
-        };
-        reader.readAsDataURL(file);
-      });
-      showToast(`${files.length} fichier(s) téléversé(s) avec succès et conservé(s) dans la médiathèque PROS.`);
+        } catch (err) {
+          console.warn('Compression error for file', file.name, err);
+        }
+      }
+      showToast(`${fileList.length} fichier(s) téléversé(s) et conservé(s) avec succès dans la médiathèque PROS.`);
     }
   };
 
