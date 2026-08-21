@@ -15,7 +15,6 @@ import {
   Trash2,
   CheckCircle2,
   ShoppingBag,
-  ChevronRight,
   X,
   Loader2,
   AlertCircle,
@@ -58,42 +57,51 @@ const SENEGAL_REGIONS = [
   'Kaffrine',
 ];
 
-const CLUB_REWARDS = [
+const CLUB_PHYSICAL_REWARDS = [
   {
-    id: 'rew-2500',
-    title: 'Bon de Réduction 2 500 FCFA',
+    id: 'rew-socks',
+    title: 'Chaussettes Exclusives PROS',
+    cost: 50,
+    productName: 'Chaussettes PROS Streetwear',
+    image: 'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?auto=format&fit=crop&q=80&w=400',
+    description: 'Chaussettes en coton peigné haut de gamme avec broderie officielle PROS.',
+    codePrefix: 'CADEAU-PROS-CHAUSSETTES-',
+  },
+  {
+    id: 'rew-mug',
+    title: 'Mug / Tasse Collector PROS',
+    cost: 100,
+    productName: 'Tasse Officielle PROS',
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=400',
+    description: 'Tasse céramique finition noir mat avec logo doré « ÉLÉGANTE. FORTE. ENGAGÉE. »',
+    codePrefix: 'CADEAU-PROS-TASSE-',
+  },
+  {
+    id: 'rew-cap',
+    title: 'Casquette Streetwear Officielle PROS',
+    cost: 150,
+    productName: 'Casquette PROS Président Ousmane Sonko',
+    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=400',
+    description: 'Casquette brodée haute couture 100% coton sergé.',
+    codePrefix: 'CADEAU-PROS-CASQUETTE-',
+  },
+  {
+    id: 'rew-tshirt',
+    title: 'T-Shirt Signature PROS',
     cost: 250,
-    discountValue: 2500,
-    type: 'FIXED_AMOUNT' as const,
-    description: 'Valable sur l\'ensemble du catalogue PROS sans minimum d\'achat.',
-    codePrefix: 'PROS-CLUB-2500-',
+    productName: 'T-Shirt Coton Bio PROS',
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=400',
+    description: 'T-Shirt coupe sur-mesure 240g/m² avec marquage sérigraphié d\'exception.',
+    codePrefix: 'CADEAU-PROS-TSHIRT-',
   },
   {
-    id: 'rew-5000',
-    title: 'Bon de Réduction 5 000 FCFA',
+    id: 'rew-polo',
+    title: 'Polo Haute Couture PROS',
     cost: 500,
-    discountValue: 5000,
-    type: 'FIXED_AMOUNT' as const,
-    description: 'Réduction de 5 000 FCFA sur votre prochaine commande.',
-    codePrefix: 'PROS-CLUB-5000-',
-  },
-  {
-    id: 'rew-ship',
-    title: 'Livraison Offerte au Sénégal',
-    cost: 350,
-    discountValue: 0,
-    type: 'FREE_SHIPPING' as const,
-    description: 'Frais de livraison dakarois ou régionaux offerts.',
-    codePrefix: 'PROS-SHIP-FREE-',
-  },
-  {
-    id: 'rew-12000',
-    title: 'Bon Privilège 12 000 FCFA',
-    cost: 1000,
-    discountValue: 12000,
-    type: 'FIXED_AMOUNT' as const,
-    description: 'Remise exceptionnelle réservée aux membres actifs.',
-    codePrefix: 'PROS-GOLD-12000-',
+    productName: 'Polo Piqué Luxe PROS',
+    image: 'https://images.unsplash.com/photo-1625910513413-5fc256ecf91a?auto=format&fit=crop&q=80&w=400',
+    description: 'Polo prestige en piqué de coton égyptien avec boutons en nacre gravés.',
+    codePrefix: 'CADEAU-PROS-POLO-',
   },
 ];
 
@@ -117,10 +125,29 @@ export const AccountPage: React.FC = () => {
   const { currentUser, logout, updateProfile, changePassword } = useAuth();
   const { members } = useLoyalty();
 
-  // Active Tab Navigation State
+  // Active Tab Navigation State (Defaulting to 'orders')
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'orders' | 'club' | 'wishlist' | 'profile' | 'addresses' | 'returns' | 'security'
-  >('overview');
+    'orders' | 'club' | 'wishlist' | 'profile' | 'addresses' | 'returns' | 'security'
+  >(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['orders', 'club', 'wishlist', 'profile', 'addresses', 'returns', 'security'].includes(tabParam)) {
+      return tabParam as any;
+    }
+    return 'orders';
+  });
+
+  // Unique Client Referral Code & Link Helpers
+  const userRefCode = useMemo(() => {
+    if (!currentUser) return 'PROS-MEMBRE';
+    const cleanName = (currentUser.lastName || currentUser.firstName || 'MEMBRE').toUpperCase().replace(/[^A-Z]/g, '');
+    const idSuffix = (currentUser.id || '9821').slice(-4);
+    return `PROS-${cleanName}-${idSuffix}`;
+  }, [currentUser]);
+
+  const userRefUrl = useMemo(() => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://pros2029.vercel.app';
+    return `${baseUrl}/auth/register?ref=${userRefCode}`;
+  }, [userRefCode]);
 
   // ASYNC LOADING STATES
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -231,9 +258,8 @@ export const AccountPage: React.FC = () => {
     const tabParam = searchParams.get('tab');
     if (tabParam) {
       const t = tabParam.toLowerCase();
-      if (t === 'overview' || t === 'tableau-de-bord') setActiveTab('overview');
-      else if (t === 'orders' || t === 'commandes') setActiveTab('orders');
-      else if (t === 'club' || t === 'fidelite' || t === 'loyalty') setActiveTab('club');
+      if (t === 'orders' || t === 'commandes' || t === 'overview' || t === 'tableau-de-bord') setActiveTab('orders');
+      else if (t === 'club' || t === 'fidelite' || t === 'parrainage') setActiveTab('club');
       else if (t === 'wishlist' || t === 'souhaits') setActiveTab('wishlist');
       else if (t === 'profile' || t === 'informations') setActiveTab('profile');
       else if (t === 'addresses' || t === 'adresses') setActiveTab('addresses');
@@ -243,7 +269,7 @@ export const AccountPage: React.FC = () => {
   }, [searchParams]);
 
   const handleTabChange = (
-    tab: 'overview' | 'orders' | 'club' | 'wishlist' | 'profile' | 'addresses' | 'returns' | 'security'
+    tab: 'orders' | 'club' | 'wishlist' | 'profile' | 'addresses' | 'returns' | 'security'
   ) => {
     setActiveTab(tab);
     setSearchParams({ tab });
@@ -493,8 +519,8 @@ export const AccountPage: React.FC = () => {
     }
   };
 
-  // REAL PROS CLUB VOUCHER REDEMPTION HANDLER
-  const handleRedeemReward = (reward: typeof CLUB_REWARDS[0]) => {
+  // REAL PROS CLUB PRODUCT REWARD REDEMPTION HANDLER
+  const handleRedeemReward = (reward: typeof CLUB_PHYSICAL_REWARDS[0]) => {
     const currentPts = loyaltyMember?.availablePoints || 0;
     if (currentPts < reward.cost) {
       showToast(`Points insuffisants. Il vous manque ${reward.cost - currentPts} points.`, 'error');
@@ -503,14 +529,14 @@ export const AccountPage: React.FC = () => {
 
     const uniqueCode = `${reward.codePrefix}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
-    // Create promo code in store context
+    // Create promo code in store context for free gift product
     addPromoCode({
-      id: `promo-club-${Date.now()}`,
+      id: `promo-gift-${Date.now()}`,
       code: uniqueCode,
-      name: `Bon PROS Club - ${reward.title}`,
-      discountType: reward.type,
-      discountValue: reward.discountValue,
-      freeShipping: reward.type === 'FREE_SHIPPING',
+      name: `Cadeau Offert PROS - ${reward.productName}`,
+      discountType: 'FREE_SHIPPING',
+      discountValue: 0,
+      freeShipping: true,
       minimumOrderAmount: 0,
       active: true,
       usageLimit: 1,
@@ -526,7 +552,8 @@ export const AccountPage: React.FC = () => {
       title: reward.title,
       pointsSpent: reward.cost,
     });
-    showToast(`Félicitations ! Votre code "${uniqueCode}" a été généré.`);
+
+    showToast(`Félicitations ! Vous avez réclamé votre ${reward.title} !`, 'success');
   };
 
   // STRICT SINGLE SOURCE OF TRUTH ADMIN BUTTON CHECK
@@ -557,59 +584,116 @@ export const AccountPage: React.FC = () => {
     <div className="min-h-screen bg-white text-pros-black py-6 sm:py-10 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         
-        {/* UNIFIED LUXURY TOP HEADER BANNER */}
-        <div className="bg-pros-black text-white p-6 sm:p-8 border border-neutral-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl font-sans">
-          <div className="flex items-center space-x-4">
-            {currentUser.avatar ? (
-              <img src={currentUser.avatar} alt="Avatar" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-pros-gold shrink-0" />
-            ) : (
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pros-gold text-black rounded-full flex items-center justify-center font-display font-extrabold text-xl shrink-0">
-                {currentUser.firstName.charAt(0)}{currentUser.lastName.charAt(0)}
+        {/* UNIFIED LUXURY TOP HEADER BANNER WITH INTEGRATED STATS */}
+        <div className="bg-pros-black text-white p-6 sm:p-8 border border-neutral-800 space-y-6 shadow-xl font-sans">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center space-x-4">
+              {currentUser.avatar ? (
+                <img src={currentUser.avatar} alt="Avatar" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-pros-gold shrink-0" />
+              ) : (
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pros-gold text-black rounded-full flex items-center justify-center font-display font-extrabold text-xl shrink-0">
+                  {currentUser.firstName.charAt(0)}{currentUser.lastName.charAt(0)}
+                </div>
+              )}
+              <div>
+                <span className="text-[10px] font-mono font-bold tracking-superwide uppercase text-pros-gold block">
+                  ESPACE PERSONNEL MEMBRE PROS
+                </span>
+                <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-wider text-white mt-0.5">
+                  BONJOUR, {currentUser.firstName.toUpperCase()} {currentUser.lastName.toUpperCase()} 👋
+                </h1>
+                <p className="text-xs text-white/70 font-sans mt-1">
+                  Membre PROS depuis {new Date(currentUser.createdAt).toLocaleDateString('fr-FR')} • Compte VÉRIFIÉ
+                </p>
               </div>
-            )}
-            <div>
-              <span className="text-[10px] font-mono font-bold tracking-superwide uppercase text-pros-gold block">
-                ESPACE PERSONNEL MEMBRE PROS
-              </span>
-              <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-wider text-white mt-0.5">
-                BONJOUR, {currentUser.firstName.toUpperCase()} {currentUser.lastName.toUpperCase()} 👋
-              </h1>
-              <p className="text-xs text-white/70 font-sans mt-1">
-                Membre PROS depuis {new Date(currentUser.createdAt).toLocaleDateString('fr-FR')} • Compte VÉRIFIÉ
-              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-start sm:justify-end border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
+              <button
+                onClick={() => handleTabChange('profile')}
+                className={`px-3.5 py-2 text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans ${
+                  activeTab === 'profile'
+                    ? 'bg-pros-gold text-black'
+                    : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                }`}
+              >
+                <User size={14} />
+                <span>MES INFORMATIONS</span>
+              </button>
+
+              {canAccessAdmin && (
+                <Link
+                  to="/admin"
+                  className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold uppercase border border-white/20 flex items-center space-x-1.5 transition-all shadow-sm font-sans"
+                  title="Accéder au panneau d'administration PROS"
+                >
+                  <ShieldCheck size={14} className="text-pros-gold" />
+                  <span>ACCÈS ADMIN</span>
+                </Link>
+              )}
+
+              <button
+                onClick={handleLogout}
+                className="px-3.5 py-2 bg-red-700/90 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans"
+              >
+                <LogOut size={14} />
+                <span>DÉCONNEXION</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-start sm:justify-end border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
+          {/* INTEGRATED STATS BADGES (INSIDE THE BLACK HEADER BANNER) */}
+          <div className="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-sans">
             <button
-              onClick={() => handleTabChange('profile')}
-              className={`px-3.5 py-2 text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans ${
-                activeTab === 'profile'
-                  ? 'bg-pros-gold text-black'
-                  : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+              onClick={() => handleTabChange('orders')}
+              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
+                activeTab === 'orders' ? 'border-pros-gold bg-white/15' : 'border-white/10'
               }`}
             >
-              <User size={14} />
-              <span>MES INFORMATIONS</span>
+              <Package size={20} className="text-white shrink-0" />
+              <div>
+                <span className="text-[10px] text-white/60 font-mono block uppercase">COMMANDES</span>
+                <strong className="text-sm font-bold font-mono text-white">{userOrders.length} Commandes</strong>
+              </div>
             </button>
 
-            {canAccessAdmin && (
-              <Link
-                to="/admin"
-                className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold uppercase border border-white/20 flex items-center space-x-1.5 transition-all shadow-sm font-sans"
-                title="Accéder au panneau d'administration PROS"
-              >
-                <ShieldCheck size={14} className="text-pros-gold" />
-                <span>ACCÈS ADMIN</span>
-              </Link>
-            )}
+            <button
+              onClick={() => handleTabChange('club')}
+              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
+                activeTab === 'club' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              }`}
+            >
+              <Award size={20} className="text-pros-gold shrink-0" />
+              <div>
+                <span className="text-[10px] text-white/60 font-mono block uppercase">PARRAINAGE</span>
+                <strong className="text-sm font-bold font-mono text-pros-gold">{loyaltyMember?.availablePoints ?? 0} PTS</strong>
+              </div>
+            </button>
 
             <button
-              onClick={handleLogout}
-              className="px-3.5 py-2 bg-red-700/90 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans"
+              onClick={() => handleTabChange('wishlist')}
+              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
+                activeTab === 'wishlist' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              }`}
             >
-              <LogOut size={14} />
-              <span>DÉCONNEXION</span>
+              <Heart size={20} className="text-red-500 shrink-0" />
+              <div>
+                <span className="text-[10px] text-white/60 font-mono block uppercase">SOUHAITS</span>
+                <strong className="text-sm font-bold font-mono text-white">{userWishlistIds.length} Favoris</strong>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleTabChange('addresses')}
+              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
+                activeTab === 'addresses' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              }`}
+            >
+              <MapPin size={20} className="text-white shrink-0" />
+              <div>
+                <span className="text-[10px] text-white/60 font-mono block uppercase">ADRESSES</span>
+                <strong className="text-sm font-bold font-mono text-white">{userAddresses.length} Adresses</strong>
+              </div>
             </button>
           </div>
         </div>
@@ -638,71 +722,6 @@ export const AccountPage: React.FC = () => {
             </button>
           </div>
         )}
-
-        {/* 4 REAL HORIZONTAL KPI CLIENT CARDS */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 font-sans">
-          
-          <div
-            onClick={() => handleTabChange('orders')}
-            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
-              activeTab === 'orders' ? 'border-black bg-white' : 'border-neutral-200'
-            }`}
-          >
-            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider">COMMANDES</span>
-              <Package size={18} className="text-black" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-black">{userOrders.length}</div>
-            <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">Commandes effectuées</span>
-          </div>
-
-          <div
-            onClick={() => handleTabChange('club')}
-            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
-              activeTab === 'club' ? 'border-black bg-white' : 'border-neutral-200'
-            }`}
-          >
-            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider">PROS CLUB</span>
-              <Award size={18} className="text-pros-gold" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-pros-gold">
-              {loyaltyMember?.availablePoints ?? 0}
-            </div>
-            <span className="text-[10px] font-mono text-emerald-800 font-bold block mt-0.5">
-              Niveau {loyaltyMember?.levelName || 'BRONZE'}
-            </span>
-          </div>
-
-          <div
-            onClick={() => handleTabChange('wishlist')}
-            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
-              activeTab === 'wishlist' ? 'border-black bg-white' : 'border-neutral-200'
-            }`}
-          >
-            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider">LISTE DE SOUHAITS</span>
-              <Heart size={18} className="text-red-600" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-black">{userWishlistIds.length}</div>
-            <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">Articles sauvegardés</span>
-          </div>
-
-          <div
-            onClick={() => handleTabChange('addresses')}
-            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
-              activeTab === 'addresses' ? 'border-black bg-white' : 'border-neutral-200'
-            }`}
-          >
-            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider">ADRESSES</span>
-              <MapPin size={18} className="text-black" />
-            </div>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-black">{userAddresses.length}</div>
-            <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">Adresses enregistrées</span>
-          </div>
-
-        </div>
 
         {/* MOBILE HORIZONTAL NAVIGATION TABS (INSTANT VIEW WITHOUT SCROLLING DOWN) */}
         <div className="lg:hidden bg-pros-bone border border-neutral-200 p-2 overflow-x-auto flex items-center space-x-2 scrollbar-none font-sans">
@@ -807,144 +826,7 @@ export const AccountPage: React.FC = () => {
           {/* MAIN TAB CONTENT AREA */}
           <main className="lg:col-span-9 space-y-6">
 
-            {/* TAB 1: OVERVIEW */}
-            {activeTab === 'overview' && (
-              <div className="space-y-6 font-sans">
-                
-                {/* WELCOME BANNER */}
-                <div className="p-6 bg-pros-bone border border-neutral-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-sans">
-                  <div className="flex items-center space-x-4">
-                    {currentUser.avatar ? (
-                      <img src={currentUser.avatar} alt="Avatar" className="w-14 h-14 rounded-full object-cover border-2 border-pros-gold shrink-0" />
-                    ) : (
-                      <div className="w-14 h-14 bg-pros-black text-white rounded-full flex items-center justify-center font-display font-extrabold text-xl shrink-0">
-                        {currentUser.firstName.charAt(0)}{currentUser.lastName.charAt(0)}
-                      </div>
-                    )}
-                    <div>
-                      <h2 className="font-display font-bold text-lg uppercase text-black">
-                        BONJOUR, {currentUser.firstName} {currentUser.lastName} !
-                      </h2>
-                      <p className="text-xs text-neutral-500 font-sans mt-0.5">
-                        Membre PROS depuis {new Date(currentUser.createdAt).toLocaleDateString('fr-FR')} • Compte Client VÉRIFIÉ
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="px-3 py-1.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider shrink-0">
-                    ● STATUT {currentUser.status}
-                  </span>
-                </div>
-
-                {/* PROS CLUB CARD BANNER */}
-                <div className="p-6 bg-pros-black text-white space-y-3 font-sans relative overflow-hidden shadow-sm">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-pros-gold font-mono block">
-                        PROGRAMME DE FIDÉLITÉ
-                      </span>
-                      <h3 className="font-display font-extrabold text-lg uppercase text-white mt-0.5">
-                        VOS AVANTAGES PROS CLUB
-                      </h3>
-                      <p className="text-xs text-neutral-300 font-sans mt-1">
-                        Vous accumulez des points à chaque commande. 100 FCFA dépensés = 1 point fidélité.
-                      </p>
-                    </div>
-
-                    <div className="text-left sm:text-right shrink-0">
-                      <div className="text-3xl font-bold font-mono text-pros-gold">
-                        {loyaltyMember?.availablePoints ?? 0} <span className="text-xs">PTS</span>
-                      </div>
-                      <button
-                        onClick={() => handleTabChange('club')}
-                        className="mt-2 px-4 py-2 bg-white text-black font-bold text-xs uppercase hover:bg-neutral-100 cursor-pointer shadow-sm"
-                      >
-                        VOIR MES RÉCOMPENSES
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RECENT ORDER PREVIEW */}
-                <div className="space-y-4 font-sans">
-                  <div className="flex justify-between items-center border-b border-neutral-100 pb-2">
-                    <h3 className="font-display font-bold text-sm uppercase text-black">DERNIÈRE COMMANDE RÉCENTE</h3>
-                    <button
-                      onClick={() => handleTabChange('orders')}
-                      className="text-xs font-bold text-pros-gold hover:underline flex items-center gap-1"
-                    >
-                      <span>VOIR TOUTES MES COMMANDES</span>
-                      <ChevronRight size={14} />
-                    </button>
-                  </div>
-
-                  {userOrders.length > 0 ? (
-                    <div className="p-4 bg-pros-bone border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
-                      <div className="space-y-1 font-mono text-xs">
-                        <strong className="font-bold text-black uppercase block">{userOrders[0].id}</strong>
-                        <span className="text-neutral-500 block text-[11px]">
-                          Date: {new Date(userOrders[0].createdAt).toLocaleDateString('fr-FR')} • {userOrders[0].items.length} article(s)
-                        </span>
-                        <strong className="text-emerald-800 font-bold block">{formatPrice(userOrders[0].total)}</strong>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold text-[10px] uppercase font-mono">
-                          {userOrders[0].status.toUpperCase()}
-                        </span>
-                        <button
-                          onClick={() => handleViewOrderDetails(userOrders[0].id)}
-                          className="px-4 py-2 bg-pros-black hover:bg-neutral-800 text-white font-bold text-xs uppercase flex items-center gap-1 cursor-pointer font-sans"
-                        >
-                          <span>VOIR LA COMMANDE</span>
-                          <ArrowRight size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-6 bg-pros-bone border border-neutral-200 text-center space-y-3 font-sans">
-                      <ShoppingBag size={28} className="mx-auto text-neutral-400" />
-                      <h4 className="font-bold uppercase text-xs text-black">AUCUNE COMMANDE EN COURS</h4>
-                      <p className="text-xs text-neutral-500 max-w-sm mx-auto">
-                        Vous n'avez pas encore passé de commande. Découvrez nos collections et trouvez vos prochains essentiels PROS.
-                      </p>
-                      <Link to="/shop" className="px-5 py-2 bg-pros-black text-white font-bold text-xs uppercase inline-block">
-                        DÉCOUVRIR LA COLLECTION
-                      </Link>
-                    </div>
-                  )}
-                </div>
-
-                {/* QUICK LINKS GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-sans">
-                  <div
-                    onClick={() => handleTabChange('profile')}
-                    className="p-4 bg-white border border-neutral-200 hover:border-black cursor-pointer space-y-1"
-                  >
-                    <strong className="font-bold uppercase text-xs text-black block">MODIFIER MES INFORMATIONS</strong>
-                    <span className="text-[11px] text-neutral-500 block">Nom, prénom, email et téléphone</span>
-                  </div>
-
-                  <div
-                    onClick={() => handleTabChange('addresses')}
-                    className="p-4 bg-white border border-neutral-200 hover:border-black cursor-pointer space-y-1"
-                  >
-                    <strong className="font-bold uppercase text-xs text-black block">MES ADRESSES DE LIVRAISON</strong>
-                    <span className="text-[11px] text-neutral-500 block">{userAddresses.length} adresse(s) configurée(s)</span>
-                  </div>
-
-                  <div
-                    onClick={() => handleTabChange('security')}
-                    className="p-4 bg-white border border-neutral-200 hover:border-black cursor-pointer space-y-1"
-                  >
-                    <strong className="font-bold uppercase text-xs text-black block">MOT DE PASSE & SÉCURITÉ</strong>
-                    <span className="text-[11px] text-neutral-500 block">Protéger votre espace personnel</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: MES COMMANDES */}
+            {/* TAB 1: MES COMMANDES */}
             {activeTab === 'orders' && (
               <div className="space-y-6 font-sans">
                 <div className="border-b border-neutral-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1072,117 +954,136 @@ export const AccountPage: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 3: PROS CLUB & VOUCHER EXCHANGE */}
+            {/* TAB 3: PROS CLUB & PARRAINAGE PAR LIEN */}
             {activeTab === 'club' && (
               <div className="space-y-6 font-sans">
                 <div className="border-b border-neutral-100 pb-4 flex justify-between items-center">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-pros-gold font-mono block">PROGRAMME PRIVILÈGE</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-pros-gold font-mono block">PROGRAMME DE PARRAINAGE EXCLUSIF</span>
                     <h2 className="font-display font-bold text-xl uppercase text-pros-black mt-0.5">
-                      PROS CLUB
+                      PROS CLUB & PARRAINAGE
                     </h2>
                   </div>
                   <span className="px-3 py-1 bg-pros-gold text-black font-mono font-bold text-xs uppercase">
-                    ● NIVEAU {loyaltyMember?.levelName || 'BRONZE'}
+                    ● {loyaltyMember?.availablePoints ?? 0} PTS CUMULÉS
                   </span>
                 </div>
 
-                <div className="p-6 bg-pros-bone border border-neutral-200 grid grid-cols-1 md:grid-cols-3 gap-6 font-sans">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-neutral-400 font-mono uppercase block">NIVEAU ACTUEL</span>
-                    <strong className="text-xl font-bold font-display text-black uppercase">{loyaltyMember?.levelName || 'BRONZE'}</strong>
+                {/* REFERRAL LINK ENGINE BANNER */}
+                <div className="p-6 bg-pros-black text-white border border-neutral-800 space-y-4 shadow-xl font-sans">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="text-pros-gold shrink-0" size={24} />
+                    <div>
+                      <h3 className="font-display font-bold text-base uppercase text-white">VOTRE LIEN DE PARRAINAGE UNIQUE</h3>
+                      <p className="text-xs text-white/70 font-sans">
+                        Partagez votre lien de parrainage à vos connaissances. Gagnez <strong className="text-pros-gold">+10 points</strong> pour chaque inscription réussie et débloquez nos vêtements & accessoires officiels !
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-neutral-400 font-mono uppercase block">POINTS DISPONIBLES</span>
-                    <strong className="text-xl font-bold font-mono text-pros-gold">{loyaltyMember?.availablePoints ?? 0} PTS</strong>
+                  {/* REFERRAL LINK DISPLAY BOX */}
+                  <div className="p-3 bg-white/10 border border-white/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 font-mono">
+                    <div className="truncate text-xs font-bold text-pros-gold">
+                      {userRefUrl}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(userRefUrl);
+                          showToast('Lien de parrainage copié dans le presse-papier !');
+                        }}
+                        className="px-3.5 py-2 bg-pros-gold hover:bg-yellow-400 text-black font-sans font-bold text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Copy size={14} />
+                        <span>COPIER MON LIEN</span>
+                      </button>
+
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(`Rejoins-moi sur la maison de mode officielle PROS (Président Ousmane Sonko) et découvre la collection exclusive : ${userRefUrl}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2 bg-[#25D366] hover:bg-emerald-500 text-black font-sans font-bold text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        <Copy size={14} className="hidden" />
+                        <span>PARTAGER SUR WHATSAPP</span>
+                      </a>
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-neutral-400 font-mono uppercase block">RÉCOMPENSES UTILISÉES</span>
-                    <strong className="text-xl font-bold font-mono text-black">{loyaltyMember?.rewardsRedeemedCount ?? 0} BONS</strong>
+                  <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-mono pt-2 border-t border-white/10">
+                    <span>CODE PARRAIN : <strong className="text-pros-gold">{userRefCode}</strong></span>
+                    <span>AMIS PARRAINÉS : <strong className="text-white">0 Membre(s)</strong></span>
                   </div>
                 </div>
 
-                {/* PROGRESS BAR TO NEXT TIER */}
-                <div className="p-5 bg-white border border-neutral-200 space-y-3 font-sans">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span>PROGRESSION VERS NIVEAU SILVER (1 000 PTS)</span>
-                    <span className="font-mono text-pros-gold">{loyaltyMember?.availablePoints ?? 0} / 1 000 PTS</span>
-                  </div>
-                  <div className="w-full h-3 bg-pros-bone rounded-none overflow-hidden border border-neutral-200">
-                    <div
-                      className="h-full bg-pros-gold"
-                      style={{ width: `${Math.min(100, Math.round(((loyaltyMember?.availablePoints ?? 0) / 1000) * 100))}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-[10px] text-neutral-500 block font-mono">
-                    Encore {Math.max(0, 1000 - (loyaltyMember?.availablePoints ?? 0))} points avant le prochain niveau SILVER et vos avantages exclusifs.
-                  </span>
-                </div>
-
-                {/* REWARDS CATALOG / REDEMPTION SECTION */}
+                {/* PHYSICAL PRODUCT REWARDS CATALOG */}
                 <div className="space-y-4 font-sans">
                   <div className="flex justify-between items-center border-b border-neutral-100 pb-2">
                     <h3 className="font-display font-bold text-sm uppercase text-black flex items-center gap-1.5">
-                      <Sparkles size={16} className="text-pros-gold" /> ÉCHANGER MES POINTS CONTRE DES BONS
+                      <Award size={16} className="text-pros-gold" /> CATALOGUE DES PRODUITS RÉCOMPENSES
                     </h3>
+                    <span className="text-xs text-neutral-500 font-mono">Convertissez vos points parrainage en produits réels</span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {CLUB_REWARDS.map((rew) => {
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {CLUB_PHYSICAL_REWARDS.map((rew) => {
                       const canAfford = (loyaltyMember?.availablePoints || 0) >= rew.cost;
                       return (
-                        <div key={rew.id} className="p-4 bg-white border border-neutral-200 space-y-2 flex flex-col justify-between shadow-sm">
-                          <div className="space-y-1">
-                            <div className="flex justify-between items-start">
-                              <h4 className="font-bold text-xs uppercase text-black">{rew.title}</h4>
-                              <span className="px-2 py-0.5 bg-pros-bone border border-neutral-300 font-mono font-bold text-pros-gold text-[10px]">
-                                {rew.cost} PTS
-                              </span>
+                        <div key={rew.id} className="bg-white border border-neutral-200 overflow-hidden flex flex-col justify-between shadow-sm">
+                          <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
+                            <img src={rew.image} alt={rew.title} className="w-full h-full object-cover" />
+                            <div className="absolute top-2 right-2 px-2.5 py-1 bg-pros-black text-pros-gold font-mono font-bold text-xs uppercase shadow-md">
+                              {rew.cost} PTS
                             </div>
-                            <p className="text-[11px] text-neutral-500 font-sans">{rew.description}</p>
                           </div>
 
-                          <button
-                            onClick={() => handleRedeemReward(rew)}
-                            disabled={!canAfford}
-                            className={`w-full py-2 font-bold text-xs uppercase tracking-wider cursor-pointer ${
-                              canAfford
-                                ? 'bg-pros-black hover:bg-neutral-800 text-white shadow-sm'
-                                : 'bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed'
-                            }`}
-                          >
-                            {canAfford ? 'ÉCHANGER MES POINTS' : `POINTS INSUFFISANTS (${rew.cost} PTS)`}
-                          </button>
+                          <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1">
+                              <h4 className="font-bold text-xs uppercase text-black">{rew.title}</h4>
+                              <p className="text-[11px] text-neutral-500 font-sans leading-relaxed">{rew.description}</p>
+                            </div>
+
+                            <button
+                              onClick={() => handleRedeemReward(rew)}
+                              disabled={!canAfford}
+                              className={`w-full py-2.5 font-bold text-xs uppercase tracking-wider cursor-pointer transition-all mt-3 ${
+                                canAfford
+                                  ? 'bg-pros-black hover:bg-neutral-800 text-white shadow-sm'
+                                  : 'bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed'
+                              }`}
+                            >
+                              {canAfford ? 'RÉCLAMER LE PRODUIT' : `POINTS INSUFFISANTS (${rew.cost} PTS)`}
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* GENERATED VOUCHER NOTICE */}
+                {/* GENERATED PRODUCT REWARD VOUCHER NOTICE */}
                 {generatedVoucher && (
-                  <div className="p-5 bg-emerald-50 border border-emerald-300 text-emerald-900 space-y-2 font-sans">
+                  <div className="p-5 bg-emerald-50 border border-emerald-300 text-emerald-900 space-y-3 font-sans shadow-md">
                     <div className="flex justify-between items-center">
-                      <strong className="font-bold uppercase text-xs flex items-center gap-1.5">
-                        <CheckCircle2 size={16} className="text-emerald-700" /> CODE PROMO GÉNÉRÉ
+                      <strong className="font-bold uppercase text-xs flex items-center gap-1.5 text-emerald-900">
+                        <CheckCircle2 size={16} className="text-emerald-700" /> BONS DE PRODUIT CADEAU GÉNÉRÉ RÉUSSITE
                       </strong>
                       <button onClick={() => setGeneratedVoucher(null)} className="text-neutral-500 hover:text-black">
                         <X size={16} />
                       </button>
                     </div>
                     <p className="text-xs text-emerald-800">
-                      Voici votre bon de réduction personnel. Copiez-le et utilisez-le lors de votre prochaine commande.
+                      Félicitations ! Votre produit offert ({generatedVoucher.title}) a été débloqué. Utilisez ce code cadeau lors de votre prochaine commande ou présentez-le en boutique.
                     </p>
                     <div className="p-3 bg-white border border-emerald-400 flex items-center justify-between font-mono font-bold text-black text-sm">
                       <span>{generatedVoucher.code}</span>
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(generatedVoucher.code);
-                          showToast('Code promo copié dans le presse-papier !');
+                          showToast('Code produit cadeau copié !');
                         }}
-                        className="px-3 py-1 bg-emerald-800 text-white text-xs font-sans font-bold uppercase flex items-center gap-1 cursor-pointer"
+                        className="px-3.5 py-1.5 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-sans font-bold uppercase flex items-center gap-1 cursor-pointer"
                       >
                         <Copy size={12} /> COPIER
                       </button>
