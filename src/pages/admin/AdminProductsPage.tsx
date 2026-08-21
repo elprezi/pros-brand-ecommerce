@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader';
 import { AdminConfirmDialog } from '../../components/admin/AdminConfirmDialog';
+import { MediaPickerModal } from '../../components/admin/MediaPickerModal';
 import { useStore } from '../../store/storeContext';
 import type { Product, Category, SubCategory, ProductBadge, ProductStatus, ProductCollection, ProductSize } from '../../types/ecommerce';
 import {
@@ -45,6 +46,7 @@ export const AdminProductsPage: React.FC = () => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -1166,6 +1168,18 @@ export const AdminProductsPage: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Media Library Picker Trigger Button */}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setIsMediaPickerOpen(true)}
+                          className="w-full py-2.5 bg-pros-black hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm font-sans"
+                        >
+                          <Sparkles size={16} className="text-pros-gold" />
+                          <span>SÉLECTIONNER DEPUIS LA MÉDIATHÈQUE PROS</span>
+                        </button>
+                      </div>
+
                       {/* Optional URL input */}
                       <div className="space-y-1">
                         <label className="font-bold uppercase text-black block">OU SAISIR UN LIEN / URL D'IMAGE HD</label>
@@ -1347,6 +1361,16 @@ export const AdminProductsPage: React.FC = () => {
           confirmText="SUPPRIMER DÉFINITIVEMENT"
           onConfirm={confirmDelete}
           onCancel={() => setProductToDelete(null)}
+        />
+
+        {/* Media Picker Modal for Product Image Selection */}
+        <MediaPickerModal
+          isOpen={isMediaPickerOpen}
+          onClose={() => setIsMediaPickerOpen(false)}
+          onSelectMedia={(media) => {
+            setFormData((prev) => ({ ...prev, imageUrl: media.url }));
+          }}
+          title="SÉLECTIONNER L'IMAGE DU PRODUIT DEPUIS LA MÉDIATHÈQUE PROS"
         />
       </div>
     </AdminLayout>

@@ -1048,17 +1048,17 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Media Library Central Actions
   const uploadMedia = (file: { filename: string; url: string; altText: string; sizeKb: number; format?: string; mimeType?: string; width?: number; height?: number }): MediaItem => {
-    const nextIdNum = mediaLibrary.length + 1;
-    const mediaId = `MEDIA_${String(nextIdNum).padStart(3, '0')}`;
+    const uniqueSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const mediaId = `MEDIA_${Date.now().toString().slice(-6)}_${uniqueSuffix}`;
 
     const newItem: MediaItem = {
       id: mediaId,
       filename: file.filename,
       url: file.url,
       mimeType: file.mimeType || `image/${(file.format || 'jpeg').toLowerCase()}`,
-      sizeKb: file.sizeKb,
-      width: file.width || 1920,
-      height: file.height || 1080,
+      sizeKb: file.sizeKb || 100,
+      width: file.width || 1600,
+      height: file.height || 1600,
       altText: file.altText || file.filename,
       createdAt: new Date().toISOString(),
       createdBy: 'Admin PROS',
