@@ -60,7 +60,7 @@ export const AdminMediaLibraryContent: React.FC = () => {
   const totalSizeKb = mediaLibrary.reduce((sum, m) => sum + (m.sizeKb || 0), 0);
   const totalSizeMb = (totalSizeKb / 1024).toFixed(2);
 
-  // File Upload Handler
+  // File Upload Handler with Permanent Base64 Data URL Persistence
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasPermission('UPLOAD_MEDIA')) {
       showToast("Vous n'avez pas la permission de téléverser des médias.", 'error');
@@ -70,18 +70,24 @@ export const AdminMediaLibraryContent: React.FC = () => {
     const files = e.target.files;
     if (files && files.length > 0) {
       Array.from(files).forEach((file) => {
-        const fakeUrl = URL.createObjectURL(file);
-        uploadMedia({
-          filename: file.name,
-          url: fakeUrl,
-          altText: file.name.replace(/\.[^/.]+$/, ''),
-          sizeKb: Math.round(file.size / 1024),
-          mimeType: file.type || 'image/jpeg',
-          width: 1920,
-          height: 1080,
-        });
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const dataUrl = event.target?.result as string;
+          if (dataUrl) {
+            uploadMedia({
+              filename: file.name,
+              url: dataUrl,
+              altText: file.name.replace(/\.[^/.]+$/, ''),
+              sizeKb: Math.round(file.size / 1024),
+              mimeType: file.type || 'image/jpeg',
+              width: 1920,
+              height: 1080,
+            });
+          }
+        };
+        reader.readAsDataURL(file);
       });
-      showToast(`${files.length} fichier(s) téléversé(s) avec succès dans la médiathèque PROS.`);
+      showToast(`${files.length} fichier(s) téléversé(s) avec succès et conservé(s) dans la médiathèque PROS.`);
     }
   };
 

@@ -4,20 +4,30 @@ import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useCms } from '../../store/cmsContext';
 
 export const Hero: React.FC = () => {
-  const { publishedCms, mediaLibrary } = useCms();
+  const { publishedCms, draftCms, mediaLibrary } = useCms();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  // Filter active & valid CMS slides (Exclude any slide whose media is missing)
-  const activeSlides = publishedCms.hero.filter((s) => {
-    if (s.status !== 'ACTIVE') return false;
-    if (s.desktopMediaId) {
-      return mediaLibrary.some((m) => m.id === s.desktopMediaId);
-    }
-    return !!s.desktopImageUrl && s.desktopImageUrl.trim().length > 0;
-  });
+  // Fallback to draft slides if published is empty or un-published
+  const rawSlides = publishedCms.hero.length > 0 ? publishedCms.hero : draftCms.hero;
+
+  const activeSlides = rawSlides
+    .filter((s) => s.status === 'ACTIVE')
+    .map((s) => {
+      let resolvedImageUrl = s.desktopImageUrl;
+      if (s.desktopMediaId) {
+        const foundMedia = mediaLibrary.find((m) => m.id === s.desktopMediaId);
+        if (foundMedia && foundMedia.url) {
+          resolvedImageUrl = foundMedia.url;
+        }
+      }
+      return {
+        ...s,
+        desktopImageUrl: resolvedImageUrl || s.desktopImageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200',
+      };
+    });
 
   if (activeSlides.length === 0) {
-    return null; // Graceful fallback
+    return null;
   }
 
   const currentSlide = activeSlides[currentSlideIndex] || activeSlides[0];

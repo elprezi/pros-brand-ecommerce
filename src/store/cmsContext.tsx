@@ -565,6 +565,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     localStorage.setItem(CMS_DRAFT_KEY, JSON.stringify(draftCms));
+    setPublishedCms(draftCms);
   }, [draftCms]);
 
   useEffect(() => {
