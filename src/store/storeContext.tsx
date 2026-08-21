@@ -154,9 +154,25 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_PREFIX = 'pros_store_v2_';
+const LOCAL_STORAGE_PREFIX = 'pros_store_v3_';
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Auto-purge legacy v1/v2 cached data from mobile and desktop devices
+  useEffect(() => {
+    try {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('_v1_') || key.includes('_v2') || key.includes('pros_store_v2') || key.includes('pros_cms_published_v2'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+    } catch (e) {
+      console.warn('Mobile cache purge:', e);
+    }
+  }, []);
+
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_PREFIX + 'products');
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;

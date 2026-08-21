@@ -452,12 +452,12 @@ const DEFAULT_BANNERS: ProsBanner[] = [
 
 const CmsContext = createContext<CmsContextType | undefined>(undefined);
 
-const CMS_PUBLISHED_KEY = 'pros_cms_published_v2';
-const CMS_DRAFT_KEY = 'pros_cms_draft_v2';
-const CMS_MEDIA_KEY = 'pros_cms_media_v2';
-const CMS_BANNERS_KEY = 'pros_cms_banners_v2';
-const CMS_AUDIT_KEY = 'pros_cms_audit_v2';
-const CMS_VERSIONS_KEY = 'pros_cms_versions_v2';
+const CMS_PUBLISHED_KEY = 'pros_cms_published_v3';
+const CMS_DRAFT_KEY = 'pros_cms_draft_v3';
+const CMS_MEDIA_KEY = 'pros_cms_media_v3';
+const CMS_BANNERS_KEY = 'pros_cms_banners_v3';
+const CMS_AUDIT_KEY = 'pros_cms_audit_v3';
+const CMS_VERSIONS_KEY = 'pros_cms_versions_v3';
 
 export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initialData: HomepageCmsData = {
