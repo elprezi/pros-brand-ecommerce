@@ -98,25 +98,18 @@ export const AdminMediaLibraryContent: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Delete Attempt Handler
-  const handleDeleteAttempt = (media: MediaItem, force = false) => {
+  // Direct Unconditional Delete Handler
+  const handleDeleteAttempt = (media: MediaItem) => {
     if (!hasPermission('DELETE_MEDIA')) {
       showToast("Vous n'avez pas la permission de supprimer des médias.", 'error');
       return;
     }
 
-    const res = deleteMedia(media.id, force);
-    if (!res.success && res.isUsed) {
-      setBlockedDeleteInfo({
-        media,
-        usages: res.usages,
-      });
-    } else {
-      showToast(`Média "${media.filename}" supprimé avec succès.`);
-      setBlockedDeleteInfo(null);
-      if (selectedMediaDetail?.id === media.id) {
-        setSelectedMediaDetail(null);
-      }
+    deleteMedia(media.id, true);
+    showToast(`Média "${media.filename}" supprimé avec succès de la médiathèque PROS.`);
+    setBlockedDeleteInfo(null);
+    if (selectedMediaDetail?.id === media.id) {
+      setSelectedMediaDetail(null);
     }
   };
 
@@ -469,7 +462,7 @@ export const AdminMediaLibraryContent: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => handleDeleteAttempt(blockedDeleteInfo.media, true)}
+                  onClick={() => handleDeleteAttempt(blockedDeleteInfo.media)}
                   className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-xs shadow-md cursor-pointer"
                 >
                   FORCER LA SUPPRESSION (FALLBACK)

@@ -353,56 +353,7 @@ const DEFAULT_ADVANTAGES: CmsAdvantage[] = [
   { id: 'adv-4', title: 'SERVICE CLIENT DÉDIÉ', subtitle: 'Assistance WhatsApp & Téléphone 7j/7', iconName: 'Headphones', status: 'ACTIVE', order: 4 },
 ];
 
-const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
-  {
-    id: 'MEDIA_001',
-    filename: 'hero-desktop-1.jpg',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=1200',
-    mimeType: 'image/jpeg',
-    sizeKb: 240,
-    width: 1920,
-    height: 1080,
-    altText: 'Hero banner desktop PROS — Sweatshirt & Hoodie Signature',
-    createdAt: '2026-08-18T10:00:00.000Z',
-    createdBy: 'System Seed',
-  },
-  {
-    id: 'MEDIA_002',
-    filename: 'category-homme.jpg',
-    url: 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=1000&q=80',
-    mimeType: 'image/jpeg',
-    sizeKb: 180,
-    width: 1000,
-    height: 800,
-    altText: 'Catégorie Homme PROS 480GSM',
-    createdAt: '2026-08-18T10:05:00.000Z',
-    createdBy: 'System Seed',
-  },
-  {
-    id: 'MEDIA_003',
-    filename: 'category-femme.jpg',
-    url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80',
-    mimeType: 'image/jpeg',
-    sizeKb: 195,
-    width: 1000,
-    height: 800,
-    altText: 'Catégorie Femme PROS Seamless',
-    createdAt: '2026-08-18T10:10:00.000Z',
-    createdBy: 'System Seed',
-  },
-  {
-    id: 'MEDIA_004',
-    filename: 'collection-signature.jpg',
-    url: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=1000&q=80',
-    mimeType: 'image/jpeg',
-    sizeKb: 310,
-    width: 1200,
-    height: 900,
-    altText: 'Collection Signature Ousmane Sonko',
-    createdAt: '2026-08-18T10:15:00.000Z',
-    createdBy: 'System Seed',
-  },
-];
+const INITIAL_MEDIA_LIBRARY: MediaItem[] = [];
 
 const DEFAULT_BANNERS: ProsBanner[] = [
   {
@@ -1094,37 +1045,36 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newItem;
   };
 
-  const deleteMedia = (id: string, force = false): { success: boolean; isUsed: boolean; usages: MediaUsageRef[]; message?: string } => {
-    const usages = getMediaUsage(id);
-    if (usages.length > 0 && !force) {
-      return {
-        success: false,
-        isUsed: true,
-        usages,
-        message: `Impossible de supprimer : ce média (${id}) est actuellement utilisé par ${usages.length} composant(s) de la plateforme PROS.`,
-      };
-    }
+  const deleteMedia = (id: string): { success: boolean; isUsed: boolean; usages: MediaUsageRef[]; message?: string } => {
+    // Auto-cleanup any slide, category, collection, or banner referencing this media
+    setDraftCms((prev) => ({
+      ...prev,
+      hero: prev.hero.map((s) => ({
+        ...s,
+        desktopMediaId: s.desktopMediaId === id ? undefined : s.desktopMediaId,
+        mobileMediaId: s.mobileMediaId === id ? undefined : s.mobileMediaId,
+      })),
+      categories: prev.categories.map((c) => ({
+        ...c,
+        desktopMediaId: c.desktopMediaId === id ? undefined : c.desktopMediaId,
+        mobileMediaId: c.mobileMediaId === id ? undefined : c.mobileMediaId,
+      })),
+      collections: prev.collections.map((col) => ({
+        ...col,
+        mediaId: col.mediaId === id ? undefined : col.mediaId,
+      })),
+    }));
+
+    setBanners((prev) =>
+      prev.map((b) => ({
+        ...b,
+        desktopMediaId: b.desktopMediaId === id ? undefined : b.desktopMediaId,
+        mobileMediaId: b.mobileMediaId === id ? undefined : b.mobileMediaId,
+      }))
+    );
 
     const target = mediaLibrary.find((m) => m.id === id);
     setMediaLibrary((prev) => prev.filter((m) => m.id !== id));
-
-    // Automatically invalidate banners referencing this media ID
-    setBanners((prev) =>
-      prev.map((b) => {
-        if (b.desktopMediaId === id || b.mobileMediaId === id) {
-          addAuditLog('MEDIA_MISSING_DETECTED', 'BANNIÈRES PROS', b.id, id, 'Média supprimé - Bannière invalidée');
-          addAuditLog('BANNER_INVALIDATED', 'BANNIÈRES PROS', b.id, b.status, 'INACTIVE (MÉDIA MANQUANT)');
-          return {
-            ...b,
-            validationStatus: 'INVALID',
-            validationReason: 'MEDIA_MISSING',
-            status: b.status === 'ACTIVE' ? 'INACTIVE' : b.status,
-            updatedAt: new Date().toISOString(),
-          };
-        }
-        return b;
-      })
-    );
 
     addAuditLog('MEDIA DELETE', 'MÉDIATHÈQUE PROS', id, target?.filename || '', 'Supprimé');
     return { success: true, isUsed: false, usages: [] };
