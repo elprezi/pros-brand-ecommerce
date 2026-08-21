@@ -48,6 +48,7 @@ export const AdminProductsPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
+  const [colorPickerTargetIndex, setColorPickerTargetIndex] = useState<number | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -55,26 +56,28 @@ export const AdminProductsPage: React.FC = () => {
     slug: '',
     category: 'homme' as Category,
     subCategory: 'hoodie' as SubCategory,
-    collection: 'signature' as ProductCollection,
+    collection: '' as ProductCollection,
     status: 'ACTIVE' as ProductStatus,
-    price: 45000,
-    originalPrice: 55000,
-    internalCost: 20000,
-    description: 'Création officielle PROS confectionnée dans un coton premium molletonné haute densité 480GSM.',
+    price: 5000,
+    originalPrice: 8000,
+    internalCost: 3000,
+    description: 'Création officielle PROS confectionnée dans un coton premium peigné haute densité.',
     shortDescription: 'Coupe contemporaine, broderie signature PROS.',
     material: '100% Coton peigné 480GSM',
     fit: 'Coupe oversize structurée',
     care: 'Lavage en machine à 30°C à l’envers',
     imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800',
-    colorName: 'Noir Mat',
-    colorHex: '#0A0A0A',
+    colors: [
+      { name: 'Noir Mat', hex: '#0A0A0A', image: '' }
+    ],
     badge: 'nouveau' as ProductBadge,
-    stockXS: 5,
     stockS: 10,
     stockM: 15,
     stockL: 20,
     stockXL: 15,
     stockXXL: 5,
+    stockXXXL: 0,
+    stockXXXXL: 0,
     metaTitle: '',
     metaDescription: '',
     seoSlug: '',
@@ -185,7 +188,7 @@ export const AdminProductsPage: React.FC = () => {
 
   // Total calculated stock for form preview
   const calculatedTotalStock = useMemo(() => {
-    return Number(formData.stockXS) + Number(formData.stockS) + Number(formData.stockM) + Number(formData.stockL) + Number(formData.stockXL) + Number(formData.stockXXL);
+    return Number(formData.stockS) + Number(formData.stockM) + Number(formData.stockL) + Number(formData.stockXL) + Number(formData.stockXXL) + Number(formData.stockXXXL) + Number(formData.stockXXXXL);
   }, [formData]);
 
   // Checkbox handlers
@@ -210,33 +213,34 @@ export const AdminProductsPage: React.FC = () => {
     setEditingProduct(null);
     setValidationError(null);
     const initialCategory = categories.length > 0 ? categories[0].slug : 'homme';
-    const initialCollection = collections.length > 0 ? collections[0].slug : 'signature';
 
     setFormData({
       name: '',
       slug: '',
       category: initialCategory as Category,
       subCategory: 'hoodie',
-      collection: initialCollection as ProductCollection,
+      collection: '',
       status: 'ACTIVE',
-      price: 45000,
-      originalPrice: 55000,
-      internalCost: 20000,
-      description: 'Création officielle PROS confectionnée dans un coton premium molletonné haute densité 480GSM.',
+      price: 5000,
+      originalPrice: 8000,
+      internalCost: 3000,
+      description: 'Création officielle PROS confectionnée dans un coton premium peigné haute densité.',
       shortDescription: 'Coupe contemporaine, broderie signature PROS.',
       material: '100% Coton peigné 480GSM',
       fit: 'Coupe oversize structurée',
       care: 'Lavage en machine à 30°C à l’envers',
       imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800',
-      colorName: 'Noir Mat',
-      colorHex: '#0A0A0A',
+      colors: [
+        { name: 'Noir Mat', hex: '#0A0A0A', image: '' }
+      ],
       badge: 'nouveau',
-      stockXS: 5,
       stockS: 10,
       stockM: 15,
       stockL: 20,
       stockXL: 15,
       stockXXL: 5,
+      stockXXXL: 0,
+      stockXXXXL: 0,
       metaTitle: '',
       metaDescription: '',
       seoSlug: '',
@@ -248,31 +252,35 @@ export const AdminProductsPage: React.FC = () => {
   const handleOpenEditModal = (p: Product) => {
     setEditingProduct(p);
     setValidationError(null);
+    const parsedColors = p.colors && p.colors.length > 0
+      ? p.colors.map(c => ({ name: c.name, hex: c.hex, image: c.images?.[0] || '' }))
+      : [{ name: 'Noir Mat', hex: '#0A0A0A', image: p.colors?.[0]?.images?.[0] || '' }];
+
     setFormData({
       name: p.name,
       slug: p.slug,
       category: p.category,
       subCategory: p.subCategory,
-      collection: p.collection || 'signature',
+      collection: p.collection || '',
       status: p.status || 'ACTIVE',
       price: p.price,
       originalPrice: p.originalPrice || 0,
-      internalCost: Math.round(p.price * 0.45),
+      internalCost: p.internalCost ?? p.costPrice ?? 3000,
       description: p.description,
       shortDescription: p.shortDescription,
       material: p.material,
       fit: p.fit,
       care: p.care,
       imageUrl: p.colors?.[0]?.images?.[0] || '',
-      colorName: p.colors?.[0]?.name || 'Noir Mat',
-      colorHex: p.colors?.[0]?.hex || '#0A0A0A',
+      colors: parsedColors,
       badge: p.badge || 'nouveau',
-      stockXS: p.stockPerSize?.XS || 0,
       stockS: p.stockPerSize?.S || 0,
       stockM: p.stockPerSize?.M || 0,
       stockL: p.stockPerSize?.L || 0,
       stockXL: p.stockPerSize?.XL || 0,
       stockXXL: p.stockPerSize?.XXL || 0,
+      stockXXXL: p.stockPerSize?.XXXL || 0,
+      stockXXXXL: p.stockPerSize?.XXXXL || 0,
       metaTitle: `${p.name} — E-Shop Officiel PROS`,
       metaDescription: p.shortDescription,
       seoSlug: p.slug,
@@ -357,6 +365,23 @@ export const AdminProductsPage: React.FC = () => {
     }
 
     setTimeout(() => {
+      const finalColors = formData.colors.map((c) => ({
+        name: c.name.trim() || 'Standard',
+        hex: c.hex || '#0A0A0A',
+        images: [c.image || formData.imageUrl, c.image || formData.imageUrl].filter(Boolean),
+      }));
+
+      const finalSizes: ProductSize[] = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL'];
+      const finalStock: Record<ProductSize, number> = {
+        S: Number(formData.stockS) || 0,
+        M: Number(formData.stockM) || 0,
+        L: Number(formData.stockL) || 0,
+        XL: Number(formData.stockXL) || 0,
+        XXL: Number(formData.stockXXL) || 0,
+        XXXL: Number(formData.stockXXXL) || 0,
+        XXXXL: Number(formData.stockXXXXL) || 0,
+      };
+
       if (editingProduct) {
         const updated: Product = {
           ...editingProduct,
@@ -364,32 +389,20 @@ export const AdminProductsPage: React.FC = () => {
           slug: finalSlug,
           category: formData.category,
           subCategory: formData.subCategory,
-          collection: formData.collection,
+          collection: formData.collection || undefined,
           status: formData.status,
           price: Number(formData.price),
           originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+          internalCost: Number(formData.internalCost) || 0,
           description: formData.description,
           shortDescription: formData.shortDescription,
           material: formData.material,
           care: formData.care,
           fit: formData.fit,
           badge: formData.badge,
-          colors: [
-            {
-              name: formData.colorName,
-              hex: formData.colorHex,
-              images: [formData.imageUrl, formData.imageUrl],
-            },
-          ],
-          sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-          stockPerSize: {
-            XS: Number(formData.stockXS),
-            S: Number(formData.stockS),
-            M: Number(formData.stockM),
-            L: Number(formData.stockL),
-            XL: Number(formData.stockXL),
-            XXL: Number(formData.stockXXL),
-          },
+          colors: finalColors,
+          sizes: finalSizes,
+          stockPerSize: finalStock,
           updatedAt: new Date().toISOString(),
         };
         updateProduct(updated);
@@ -401,32 +414,20 @@ export const AdminProductsPage: React.FC = () => {
           name: formData.name.trim(),
           category: formData.category,
           subCategory: formData.subCategory,
-          collection: formData.collection,
+          collection: formData.collection || undefined,
           status: formData.status,
           price: Number(formData.price),
           originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+          internalCost: Number(formData.internalCost) || 0,
           description: formData.description,
           shortDescription: formData.shortDescription,
           material: formData.material,
           care: formData.care,
           fit: formData.fit,
           badge: formData.badge,
-          colors: [
-            {
-              name: formData.colorName,
-              hex: formData.colorHex,
-              images: [formData.imageUrl, formData.imageUrl],
-            },
-          ],
-          sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-          stockPerSize: {
-            XS: Number(formData.stockXS),
-            S: Number(formData.stockS),
-            M: Number(formData.stockM),
-            L: Number(formData.stockL),
-            XL: Number(formData.stockXL),
-            XXL: Number(formData.stockXXL),
-          },
+          colors: finalColors,
+          sizes: finalSizes,
+          stockPerSize: finalStock,
           rating: 5.0,
           reviewsCount: 1,
           isFeatured: true,
@@ -1212,47 +1213,138 @@ export const AdminProductsPage: React.FC = () => {
                   </div>
 
                   {/* SECTION 5: COULEURS, VARIANTES & STOCKS */}
-                  <div className="space-y-3 bg-pros-bone p-5 border border-neutral-200 font-sans">
-                    <h3 className="font-bold uppercase text-xs text-pros-gold border-b border-neutral-300 pb-2">
-                      5. COULEURS, VARIANTES & STOCKS
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="font-bold uppercase text-black block">Nom de la Couleur principale</label>
-                        <input
-                          type="text"
-                          value={formData.colorName}
-                          onChange={(e) => setFormData({ ...formData, colorName: e.target.value })}
-                          className="w-full bg-white border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:border-black font-sans"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-bold uppercase text-black block">Code Hex Couleur</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={formData.colorHex}
-                            onChange={(e) => setFormData({ ...formData, colorHex: e.target.value })}
-                            className="w-10 h-9 p-0 border border-neutral-300 cursor-pointer"
-                          />
-                          <input
-                            type="text"
-                            value={formData.colorHex}
-                            onChange={(e) => setFormData({ ...formData, colorHex: e.target.value })}
-                            className="w-full bg-white border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:border-black font-mono"
-                          />
-                        </div>
-                      </div>
+                  <div className="space-y-4 bg-pros-bone p-5 border border-neutral-200 font-sans">
+                    <div className="flex justify-between items-center border-b border-neutral-300 pb-2">
+                      <h3 className="font-bold uppercase text-xs text-pros-gold">
+                        5. COULEURS, VARIANTES AVEC IMAGES DÉDIÉES & STOCKS
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            colors: [...prev.colors, { name: 'Nouvelle Couleur', hex: '#000000', image: '' }],
+                          }));
+                        }}
+                        className="text-[10px] font-bold uppercase bg-pros-black text-white px-2.5 py-1 hover:bg-neutral-800 flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus size={12} />
+                        <span>AJOUTER UNE COULEUR</span>
+                      </button>
                     </div>
 
-                    <div className="space-y-1 pt-2">
-                      <label className="font-bold uppercase text-black block">Stock disponible par Taille (Total : <strong className="font-mono text-pros-gold">{calculatedTotalStock} unités</strong>)</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-                        {(['XS', 'S', 'M', 'L', 'XL', 'XXL'] as ProductSize[]).map((sz) => {
+                    {/* Color Variants List with Dedicated Images */}
+                    <div className="space-y-3">
+                      {formData.colors.map((col, idx) => (
+                        <div key={idx} className="p-3 bg-white border border-neutral-300 space-y-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-bold text-xs uppercase text-black">Variante Couleur #{idx + 1}</span>
+                            {formData.colors.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    colors: prev.colors.filter((_, cIdx) => cIdx !== idx),
+                                  }));
+                                }}
+                                className="text-red-600 hover:text-red-800 text-[10px] font-bold uppercase flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 size={12} />
+                                <span>RETIRER</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="font-bold uppercase text-black text-[10px] block">Nom de la couleur (ex: Blanc, Noir, Rouge)</label>
+                              <input
+                                type="text"
+                                value={col.name}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    colors: prev.colors.map((c, cIdx) => (cIdx === idx ? { ...c, name: val } : c)),
+                                  }));
+                                }}
+                                className="w-full bg-white border border-neutral-300 px-3 py-1.5 text-black text-xs font-sans focus:outline-none focus:border-black"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="font-bold uppercase text-black text-[10px] block">Teinte Hex</label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="color"
+                                  value={col.hex}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      colors: prev.colors.map((c, cIdx) => (cIdx === idx ? { ...c, hex: val } : c)),
+                                    }));
+                                  }}
+                                  className="w-9 h-8 p-0 border border-neutral-300 cursor-pointer"
+                                />
+                                <input
+                                  type="text"
+                                  value={col.hex}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      colors: prev.colors.map((c, cIdx) => (cIdx === idx ? { ...c, hex: val } : c)),
+                                    }));
+                                  }}
+                                  className="w-full bg-white border border-neutral-300 px-2 py-1.5 text-black text-xs font-mono"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Image for this specific color variant */}
+                          <div className="flex items-center justify-between gap-3 pt-1 bg-pros-bone p-2 border border-neutral-200">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={col.image || formData.imageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800'}
+                                alt=""
+                                className="w-10 h-12 object-cover border border-neutral-300 bg-white"
+                              />
+                              <div>
+                                <span className="font-bold text-[10px] uppercase text-black block">IMAGE DE LA COULEUR "{col.name.toUpperCase()}"</span>
+                                <span className="text-[9px] text-neutral-500 block">S'affichera quand le client cliquera sur la couleur {col.name}</span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setColorPickerTargetIndex(idx);
+                                setIsMediaPickerOpen(true);
+                              }}
+                              className="px-3 py-1.5 bg-pros-black text-white text-[10px] font-bold uppercase hover:bg-neutral-800 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Sparkles size={12} className="text-pros-gold" />
+                              <span>SÉLECTIONNER DANS LA MÉDIATHÈQUE</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Stock available per size (S, M, L, XL, XXL, XXXL, XXXXL) */}
+                    <div className="space-y-2 pt-2 border-t border-neutral-300">
+                      <label className="font-bold uppercase text-black block text-xs">
+                        STOCK DISPONIBLE PAR TAILLE (TOTAL : <strong className="font-mono text-pros-gold text-sm">{calculatedTotalStock} UNITÉS</strong>)
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
+                        {(['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL'] as ProductSize[]).map((sz) => {
                           const key = `stock${sz}` as keyof typeof formData;
                           return (
-                            <div key={sz} className="text-center bg-white p-2 border border-neutral-200">
-                              <span className="block font-bold text-black text-[10px] uppercase font-mono">{sz}</span>
+                            <div key={sz} className="text-center bg-white p-2 border border-neutral-300">
+                              <span className="block font-bold text-black text-[11px] uppercase font-mono">{sz}</span>
                               <input
                                 type="number"
                                 min="0"
@@ -1356,9 +1448,20 @@ export const AdminProductsPage: React.FC = () => {
         {/* Media Picker Modal for Product Image Selection */}
         <MediaPickerModal
           isOpen={isMediaPickerOpen}
-          onClose={() => setIsMediaPickerOpen(false)}
+          onClose={() => {
+            setIsMediaPickerOpen(false);
+            setColorPickerTargetIndex(null);
+          }}
           onSelectMedia={(media) => {
-            setFormData((prev) => ({ ...prev, imageUrl: media.url }));
+            if (colorPickerTargetIndex !== null) {
+              setFormData((prev) => ({
+                ...prev,
+                colors: prev.colors.map((c, cIdx) => (cIdx === colorPickerTargetIndex ? { ...c, image: media.url } : c)),
+              }));
+              setColorPickerTargetIndex(null);
+            } else {
+              setFormData((prev) => ({ ...prev, imageUrl: media.url }));
+            }
           }}
           title="SÉLECTIONNER L'IMAGE DU PRODUIT DEPUIS LA MÉDIATHÈQUE PROS"
         />

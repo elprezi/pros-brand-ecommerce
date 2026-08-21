@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Product, CartItem, Order, StoreSettings, PromoCode, ProductSize, CatalogCategory, CatalogCollection, CustomerReview, ReviewStatus, CustomerUser, UserStatus, DeliveryAddress } from '../types/ecommerce';
 import { INITIAL_PRODUCTS, INITIAL_SETTINGS, INITIAL_PROMO_CODES } from '../data/products';
 import { logRbacAction } from '../lib/server/rbacEngine';
+import { syncProductsFromSupabase, saveProductToSupabase, deleteProductFromSupabase } from '../lib/server/supabaseSync';
 
 export const INITIAL_CATEGORIES: CatalogCategory[] = [
   {
@@ -160,6 +161,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem(LOCAL_STORAGE_PREFIX + 'products');
     return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
   });
+
+  // Cross-device auto-sync: Fetch published products from Supabase on mount
+  useEffect(() => {
+    syncProductsFromSupabase().then((remoteProducts) => {
+      if (remoteProducts && remoteProducts.length > 0) {
+        setProducts(remoteProducts);
+      }
+    });
+  }, []);
 
   const [categories, setCategories] = useState<CatalogCategory[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_PREFIX + 'categories');
@@ -474,14 +484,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setProducts((prev) =>
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
+    saveProductToSupabase(updatedProduct);
   };
 
   const addProduct = (newProduct: Product) => {
     setProducts((prev) => [newProduct, ...prev]);
+    saveProductToSupabase(newProduct);
   };
 
   const deleteProduct = (productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
+    deleteProductFromSupabase(productId);
   };
 
   const updateSettings = (newSettings: StoreSettings) => {

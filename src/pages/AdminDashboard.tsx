@@ -68,8 +68,8 @@ export const AdminDashboard: React.FC = () => {
           images: [newProdImage]
         }
       ],
-      sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-      stockPerSize: { XS: 5, S: 10, M: 15, L: 20, XL: 10, XXL: 5 },
+      sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL'],
+      stockPerSize: { S: 10, M: 15, L: 20, XL: 10, XXL: 5, XXXL: 2, XXXXL: 1 },
       badge: 'nouveau',
       isFeatured: true,
       rating: 5.0,

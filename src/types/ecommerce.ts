@@ -18,7 +18,7 @@ export type SubCategory =
   | 'gants' 
   | 'legging';
 
-export type ProductSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
+export type ProductSize = 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL' | 'XXXXL';
 
 export type ProductBadge = 'nouveau' | 'bestseller' | 'essentiel' | 'exclusif';
 
@@ -83,6 +83,7 @@ export interface Product {
   subCategory: SubCategory;
   price: number; // in FCFA
   costPrice?: number; // Cost of Goods Sold (COGS) in FCFA
+  internalCost?: number; // Raw cost entered by admin in FCFA
   originalPrice?: number;
   description: string;
   shortDescription: string;
