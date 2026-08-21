@@ -4,6 +4,7 @@ import { AdminLayout } from '../../components/layout/AdminLayout';
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader';
 import { AdminConfirmDialog } from '../../components/admin/AdminConfirmDialog';
 import { MediaPickerModal } from '../../components/admin/MediaPickerModal';
+import { compressImageFile } from '../../lib/utils/imageCompressor';
 import { useStore } from '../../store/storeContext';
 import type { Product, Category, SubCategory, ProductBadge, ProductStatus, ProductCollection, ProductSize } from '../../types/ecommerce';
 import {
@@ -279,34 +280,34 @@ export const AdminProductsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Image File Upload Handler (FileReader -> Data URL base64)
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Image File Upload Handler with HTML5 Canvas Compression
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        if (dataUrl) {
-          setFormData((prev) => ({ ...prev, imageUrl: dataUrl }));
+      try {
+        const compressed = await compressImageFile(file, 1600, 1600, 0.82);
+        if (compressed.dataUrl) {
+          setFormData((prev) => ({ ...prev, imageUrl: compressed.dataUrl }));
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.warn('Image compression error:', err);
+      }
     }
   };
 
-  // Drag & Drop Image File Handler
-  const handleDropImage = (e: React.DragEvent<HTMLDivElement>) => {
+  // Drag & Drop Image File Handler with HTML5 Canvas Compression
+  const handleDropImage = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        if (dataUrl) {
-          setFormData((prev) => ({ ...prev, imageUrl: dataUrl }));
+      try {
+        const compressed = await compressImageFile(file, 1600, 1600, 0.82);
+        if (compressed.dataUrl) {
+          setFormData((prev) => ({ ...prev, imageUrl: compressed.dataUrl }));
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.warn('Image compression error:', err);
+      }
     }
   };
 
@@ -1024,28 +1025,17 @@ export const AdminProductsPage: React.FC = () => {
                       </div>
 
                       <div className="space-y-1">
-                        <label className="font-bold uppercase text-black block">Collection</label>
-                        {collections.length === 0 ? (
-                          <select
-                            value={formData.collection}
-                            onChange={(e) => setFormData({ ...formData, collection: e.target.value as ProductCollection })}
-                            className="w-full bg-white border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:border-black uppercase font-sans cursor-pointer"
-                          >
-                            <option value="signature">SIGNATURE</option>
-                            <option value="essentielle">ESSENTIELLE</option>
-                            <option value="sport">SPORT</option>
-                          </select>
-                        ) : (
-                          <select
-                            value={formData.collection}
-                            onChange={(e) => setFormData({ ...formData, collection: e.target.value as ProductCollection })}
-                            className="w-full bg-white border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:border-black uppercase font-sans cursor-pointer"
-                          >
-                            {collections.map((col) => (
-                              <option key={col.id} value={col.slug}>{col.name}</option>
-                            ))}
-                          </select>
-                        )}
+                        <label className="font-bold uppercase text-black block">Collection (Optionnelle)</label>
+                        <select
+                          value={formData.collection}
+                          onChange={(e) => setFormData({ ...formData, collection: e.target.value as ProductCollection })}
+                          className="w-full bg-white border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:border-black uppercase font-sans cursor-pointer font-bold"
+                        >
+                          <option value="">AUCUNE COLLECTION (VENTE LIBRE)</option>
+                          {collections.map((col) => (
+                            <option key={col.id} value={col.slug}>{col.name}</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="space-y-1">

@@ -229,35 +229,67 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Persistence side effects
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'products', JSON.stringify(products));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'products', JSON.stringify(products));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (products):', e);
+    }
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'categories', JSON.stringify(categories));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'categories', JSON.stringify(categories));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (categories):', e);
+    }
   }, [categories]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'collections', JSON.stringify(collections));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'collections', JSON.stringify(collections));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (collections):', e);
+    }
   }, [collections]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'cart', JSON.stringify(cart));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'cart', JSON.stringify(cart));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (cart):', e);
+    }
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'wishlist', JSON.stringify(wishlist));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'wishlist', JSON.stringify(wishlist));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (wishlist):', e);
+    }
   }, [wishlist]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'orders', JSON.stringify(orders));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'orders', JSON.stringify(orders));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (orders):', e);
+    }
   }, [orders]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'settings', JSON.stringify(settings));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'settings', JSON.stringify(settings));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (settings):', e);
+    }
   }, [settings]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_PREFIX + 'promos', JSON.stringify(promoCodes));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PREFIX + 'promos', JSON.stringify(promoCodes));
+    } catch (e) {
+      console.warn('LocalStorage quota warning (promos):', e);
+    }
   }, [promoCodes]);
 
   // Reset all data
