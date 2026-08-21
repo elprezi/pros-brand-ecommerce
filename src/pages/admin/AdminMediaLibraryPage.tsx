@@ -17,6 +17,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { compressImageFile } from '../../lib/utils/imageCompressor';
+import { uploadToCloudinary } from '../../lib/server/cloudinaryUpload';
 
 export const AdminMediaLibraryContent: React.FC = () => {
   const { mediaLibrary, uploadMedia, deleteMedia, updateMediaAlt, getMediaUsage } = useCms();
@@ -61,7 +62,7 @@ export const AdminMediaLibraryContent: React.FC = () => {
   const totalSizeKb = mediaLibrary.reduce((sum, m) => sum + (m.sizeKb || 0), 0);
   const totalSizeMb = (totalSizeKb / 1024).toFixed(2);
 
-  // Async Multi-File Upload Handler with HTML5 Canvas Compression
+  // Async Multi-File Upload Handler with Direct Cloudinary Cloud CDN Upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasPermission('UPLOAD_MEDIA')) {
       showToast("Vous n'avez pas la permission de téléverser des médias.", 'error');
@@ -71,27 +72,40 @@ export const AdminMediaLibraryContent: React.FC = () => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileList = Array.from(files);
-      showToast(`Téléversement et optimisation de ${fileList.length} image(s) en cours...`, 'info');
+      showToast(`Téléversement Cloudinary CDN & Supabase de ${fileList.length} image(s)...`, 'info');
 
       for (const file of fileList) {
         try {
-          const compressed = await compressImageFile(file, 1600, 1600, 0.82);
-          if (compressed.dataUrl) {
+          const cdnResult = await uploadToCloudinary(file);
+          if (cdnResult && cdnResult.url) {
             uploadMedia({
               filename: file.name,
-              url: compressed.dataUrl,
+              url: cdnResult.url,
               altText: file.name.replace(/\.[^/.]+$/, ''),
-              sizeKb: compressed.sizeKb || Math.round(file.size / 1024),
+              sizeKb: cdnResult.sizeKb || Math.round(file.size / 1024),
               mimeType: file.type || 'image/jpeg',
-              width: compressed.width || 1920,
-              height: compressed.height || 1080,
+              width: cdnResult.width || 1600,
+              height: cdnResult.height || 1600,
             });
+          } else {
+            const compressed = await compressImageFile(file, 1600, 1600, 0.82);
+            if (compressed.dataUrl) {
+              uploadMedia({
+                filename: file.name,
+                url: compressed.dataUrl,
+                altText: file.name.replace(/\.[^/.]+$/, ''),
+                sizeKb: compressed.sizeKb || Math.round(file.size / 1024),
+                mimeType: file.type || 'image/jpeg',
+                width: compressed.width || 1600,
+                height: compressed.height || 1600,
+              });
+            }
           }
         } catch (err) {
-          console.warn('Compression error for file', file.name, err);
+          console.warn('Cloudinary upload error for file', file.name, err);
         }
       }
-      showToast(`${fileList.length} fichier(s) téléversé(s) et conservé(s) avec succès dans la médiathèque PROS.`);
+      showToast(`${fileList.length} image(s) hébergée(s) sur Cloudinary CDN et enregistrée(s) dans Supabase.`);
     }
   };
 

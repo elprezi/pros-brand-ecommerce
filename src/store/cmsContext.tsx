@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { syncMediaFromSupabase, saveMediaToSupabase, deleteMediaFromSupabase } from '../lib/server/supabaseSync';
 
 export interface CmsHeroSlide {
   id: string;
@@ -481,6 +482,15 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem(CMS_MEDIA_KEY);
     return saved ? JSON.parse(saved) : INITIAL_MEDIA_LIBRARY;
   });
+
+  // Cross-device auto-sync: Fetch media library items from Supabase on mount
+  useEffect(() => {
+    syncMediaFromSupabase().then((remoteMedia) => {
+      if (remoteMedia && remoteMedia.length > 0) {
+        setMediaLibrary(remoteMedia);
+      }
+    });
+  }, []);
 
   const [banners, setBanners] = useState<ProsBanner[]>(() => {
     const saved = localStorage.getItem(CMS_BANNERS_KEY);
@@ -1065,6 +1075,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setMediaLibrary((prev) => [newItem, ...prev]);
+    saveMediaToSupabase(newItem);
     addAuditLog('MEDIA UPLOAD', 'MÉDIATHÈQUE PROS', newItem.id, 'N/A', newItem.filename);
     return newItem;
   };
@@ -1099,6 +1110,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const target = mediaLibrary.find((m) => m.id === id);
     setMediaLibrary((prev) => prev.filter((m) => m.id !== id));
+    deleteMediaFromSupabase(id);
 
     addAuditLog('MEDIA DELETE', 'MÉDIATHÈQUE PROS', id, target?.filename || '', 'Supprimé');
     return { success: true, isUsed: false, usages: [] };
