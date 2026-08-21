@@ -133,6 +133,7 @@ export interface Order {
   id: string;
   trackingNumber: string;
   createdAt: string;
+  userId?: string;
   customer: ShippingAddress;
   shippingAddressSnapshot?: ShippingAddressSnapshot;
   deliveryAddressId?: string;

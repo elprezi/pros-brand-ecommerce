@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, Globe, Loader2 } from 'lucide-react';
 import { useStore } from '../store/storeContext';
+import { useAuth } from '../store/authContext';
 import type { DeliveryMethod, PaymentMethod, Order } from '../types/ecommerce';
 import {
   ALL_COUNTRIES,
@@ -14,7 +15,8 @@ import type { CurrencyCode } from '../types/international';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, addOrder, formatPrice } = useStore();
+  const { cart, addOrder, clearCart, formatPrice } = useStore();
+  const { currentUser } = useAuth();
 
   const [selectedCountryIso, setSelectedCountryIso] = useState('SN');
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>('XOF');
@@ -101,10 +103,11 @@ export const CheckoutPage: React.FC = () => {
         id: orderId,
         trackingNumber: trackingCode,
         createdAt: new Date().toISOString(),
+        userId: currentUser?.id,
         customer: {
           firstName: customer.firstName,
           lastName: customer.lastName,
-          email: customer.email || 'client@pros.sn',
+          email: customer.email || currentUser?.email || 'client@pros.sn',
           phone: customer.phone,
           address: customer.address,
           city: customer.city || 'Dakar',
@@ -128,6 +131,7 @@ export const CheckoutPage: React.FC = () => {
       };
 
       addOrder(newOrder);
+      clearCart();
       setIsSubmitting(false);
 
       navigate(`/order-tracking?tracking=${trackingCode}`);
