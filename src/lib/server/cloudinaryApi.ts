@@ -21,7 +21,7 @@ export function getCloudinaryCloudName(): string {
     const local = localStorage.getItem('pros_cloudinary_cloud_name');
     if (local && local.trim().length > 2) return local.trim();
   }
-  return 'pros-official';
+  return 'dnmh3znaz';
 }
 
 export function getCloudinaryUploadPreset(): string {
@@ -31,7 +31,7 @@ export function getCloudinaryUploadPreset(): string {
     const local = localStorage.getItem('pros_cloudinary_upload_preset');
     if (local && local.trim().length > 2) return local.trim();
   }
-  return 'pros_unsigned_preset';
+  return 'qw6zadpf';
 }
 
 export function saveCloudinaryConfig(cloudName: string, uploadPreset: string): void {
@@ -43,7 +43,7 @@ export function saveCloudinaryConfig(cloudName: string, uploadPreset: string): v
 
 export function isCloudinaryConfigured(): boolean {
   const cloudName = getCloudinaryCloudName();
-  return Boolean(cloudName && cloudName !== 'pros-official');
+  return Boolean(cloudName && cloudName.length > 2);
 }
 
 /**
