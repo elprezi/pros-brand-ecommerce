@@ -1062,6 +1062,17 @@ export const AdminLoyaltyContent: React.FC = () => {
                   />
                 </div>
 
+                <div className="space-y-1">
+                  <label className="font-bold uppercase text-black block">IMAGE DU PRODUIT RÉCOMPENSE (URL / MÉDIATHÈQUE)</label>
+                  <input
+                    type="text"
+                    value={rewardForm.imageUrl || ''}
+                    onChange={(e) => setRewardForm({ ...rewardForm, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/... ou URL issue de la médiathèque"
+                    className="w-full bg-pros-bone border border-neutral-300 p-2 text-xs text-black focus:outline-none"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="font-bold uppercase text-black block">COÛT EN POINTS *</label>
@@ -1074,7 +1085,7 @@ export const AdminLoyaltyContent: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-bold uppercase text-black block">VALEUR (FCFA) *</label>
+                    <label className="font-bold uppercase text-black block">VALEUR MARCHANDE (FCFA) *</label>
                     <input
                       type="number"
                       value={rewardForm.monetaryValue || 500}

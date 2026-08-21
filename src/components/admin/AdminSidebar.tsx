@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   MapPin,
   Megaphone,
+  Image as ImageIcon,
+  Award,
   BarChart3,
   Landmark,
   RotateCcw,
@@ -97,6 +99,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       title: 'MARKETING & CMS',
       items: [
         { name: 'Centre Marketing & CMS', path: '/admin/marketing', icon: Megaphone, requiredPermission: 'VIEW_CMS' },
+        { name: 'Bibliothèque d\'Images', path: '/admin/media-library', icon: ImageIcon, requiredPermission: 'VIEW_CMS' },
+        { name: 'Parrainage & PROS Club', path: '/admin/loyalty', icon: Award, requiredPermission: 'VIEW_CMS' },
       ],
     },
     {

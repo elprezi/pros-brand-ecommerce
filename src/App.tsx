@@ -41,6 +41,8 @@ import { AdminCustomersPage } from './pages/admin/AdminCustomersPage';
 import { AdminRolesPage } from './pages/admin/AdminRolesPage';
 import { AdminAddressesPage } from './pages/admin/AdminAddressesPage';
 import { AdminMarketingCenterPage } from './pages/admin/AdminMarketingCenterPage';
+import { AdminMediaLibraryPage } from './pages/admin/AdminMediaLibraryPage';
+import { AdminLoyaltyPage } from './pages/admin/AdminLoyaltyPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminAccountingPage } from './pages/admin/AdminAccountingPage';
@@ -135,6 +137,8 @@ export function App() {
                     <Route path="/admin/customers" element={<AdminRouteGuard><AdminCustomersPage /></AdminRouteGuard>} />
                     <Route path="/admin/roles" element={<AdminRouteGuard><AdminRolesPage /></AdminRouteGuard>} />
                     <Route path="/admin/addresses" element={<AdminRouteGuard><AdminAddressesPage /></AdminRouteGuard>} />
+                    <Route path="/admin/media-library" element={<AdminRouteGuard><AdminMediaLibraryPage /></AdminRouteGuard>} />
+                    <Route path="/admin/loyalty" element={<AdminRouteGuard><AdminLoyaltyPage /></AdminRouteGuard>} />
                     <Route path="/admin/marketing" element={<AdminRouteGuard><AdminMarketingCenterPage /></AdminRouteGuard>} />
                     <Route path="/admin/marketing/cms" element={<AdminRouteGuard><AdminMarketingCenterPage /></AdminRouteGuard>} />
                     <Route path="/admin/marketing/homepage" element={<AdminRouteGuard><AdminMarketingCenterPage /></AdminRouteGuard>} />

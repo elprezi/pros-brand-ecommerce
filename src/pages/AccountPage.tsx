@@ -122,7 +122,23 @@ export const AccountPage: React.FC = () => {
   } = useStore();
 
   const { currentUser, logout, updateProfile, changePassword } = useAuth();
-  const { members } = useLoyalty();
+  const { members, rewards } = useLoyalty();
+
+  // Dynamic Physical Rewards List created by Admin in /admin/loyalty
+  const activeRewardsList = useMemo(() => {
+    if (rewards && rewards.length > 0) {
+      return rewards.map((r) => ({
+        id: r.id,
+        title: r.name,
+        cost: r.pointsCost,
+        productName: r.name,
+        image: r.imageUrl || 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=400',
+        description: r.description,
+        codePrefix: `CADEAU-PROS-${r.id.slice(-4)}-`,
+      }));
+    }
+    return CLUB_PHYSICAL_REWARDS;
+  }, [rewards]);
 
   // Active Tab Navigation State (Defaulting to 'orders')
   const [activeTab, setActiveTab] = useState<
@@ -519,7 +535,7 @@ export const AccountPage: React.FC = () => {
   };
 
   // REAL PROS CLUB PRODUCT REWARD REDEMPTION HANDLER
-  const handleRedeemReward = (reward: typeof CLUB_PHYSICAL_REWARDS[0]) => {
+  const handleRedeemReward = (reward: any) => {
     const currentPts = loyaltyMember?.availablePoints || 0;
     if (currentPts < reward.cost) {
       showToast(`Points insuffisants. Il vous manque ${reward.cost - currentPts} points.`, 'error');
@@ -901,7 +917,7 @@ export const AccountPage: React.FC = () => {
                     <div>
                       <h3 className="font-display font-bold text-base uppercase text-white">VOTRE LIEN DE PARRAINAGE UNIQUE</h3>
                       <p className="text-xs text-white/70 font-sans">
-                        Partagez votre lien de parrainage à vos connaissances. Gagnez <strong className="text-pros-gold">+10 points</strong> pour chaque inscription réussie et débloquez nos vêtements & accessoires officiels !
+                        Partagez votre lien. Gagnez <strong className="text-pros-gold">+10 points</strong> dès l'inscription de votre ami(e) et <strong className="text-pros-gold">+50 points</strong> lors de son premier achat pour débloquer nos vêtements & accessoires créés par l'administration !
                       </p>
                     </div>
                   </div>
@@ -952,7 +968,7 @@ export const AccountPage: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {CLUB_PHYSICAL_REWARDS.map((rew) => {
+                    {activeRewardsList.map((rew) => {
                       const canAfford = (loyaltyMember?.availablePoints || 0) >= rew.cost;
                       return (
                         <div key={rew.id} className="bg-white border border-neutral-200 overflow-hidden flex flex-col justify-between shadow-sm">
