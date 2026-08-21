@@ -554,43 +554,63 @@ export const AccountPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-pros-black py-10 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <div className="min-h-screen bg-white text-pros-black py-6 sm:py-10 font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         
-        {/* HEADER AREA */}
-        <div className="border-b border-neutral-200 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 font-sans">
-          <div>
-            <span className="text-xs font-bold tracking-superwide uppercase text-pros-gold font-sans block">
-              ESPACE PERSONNEL MEMBRE
-            </span>
-            <h1 className="font-display text-3xl sm:text-4xl font-extrabold uppercase tracking-wider text-pros-black mt-1">
-              MON COMPTE CLIENT
-            </h1>
-            <p className="text-xs text-neutral-600 font-sans mt-2 max-w-2xl">
-              Bienvenue dans votre espace personnel PROS. Gérez vos commandes, vos informations, vos adresses et vos avantages PROS Club.
-            </p>
+        {/* UNIFIED LUXURY TOP HEADER BANNER */}
+        <div className="bg-pros-black text-white p-6 sm:p-8 border border-neutral-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl font-sans">
+          <div className="flex items-center space-x-4">
+            {currentUser.avatar ? (
+              <img src={currentUser.avatar} alt="Avatar" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-pros-gold shrink-0" />
+            ) : (
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pros-gold text-black rounded-full flex items-center justify-center font-display font-extrabold text-xl shrink-0">
+                {currentUser.firstName.charAt(0)}{currentUser.lastName.charAt(0)}
+              </div>
+            )}
+            <div>
+              <span className="text-[10px] font-mono font-bold tracking-superwide uppercase text-pros-gold block">
+                ESPACE PERSONNEL MEMBRE PROS
+              </span>
+              <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-wider text-white mt-0.5">
+                BONJOUR, {currentUser.firstName.toUpperCase()} {currentUser.lastName.toUpperCase()} 👋
+              </h1>
+              <p className="text-xs text-white/70 font-sans mt-1">
+                Membre PROS depuis {new Date(currentUser.createdAt).toLocaleDateString('fr-FR')} • Compte VÉRIFIÉ
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 font-sans">
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-start sm:justify-end border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
             <button
               onClick={() => handleTabChange('profile')}
-              className="px-4 py-2.5 bg-pros-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider flex items-center space-x-2 shadow-sm transition-all cursor-pointer font-sans"
+              className={`px-3.5 py-2 text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans ${
+                activeTab === 'profile'
+                  ? 'bg-pros-gold text-black'
+                  : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+              }`}
             >
               <User size={14} />
-              <span>MODIFIER MON PROFIL</span>
+              <span>MES INFORMATIONS</span>
             </button>
 
-            {/* DISCREET ADMIN BUTTON */}
             {canAccessAdmin && (
               <Link
                 to="/admin"
-                className="px-4 py-2.5 bg-pros-bone hover:bg-neutral-200 text-neutral-800 text-xs font-mono font-bold uppercase border border-neutral-300 flex items-center space-x-2 transition-all shadow-sm font-sans"
+                className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold uppercase border border-white/20 flex items-center space-x-1.5 transition-all shadow-sm font-sans"
                 title="Accéder au panneau d'administration PROS"
               >
                 <ShieldCheck size={14} className="text-pros-gold" />
                 <span>ACCÈS ADMIN</span>
               </Link>
             )}
+
+            <button
+              onClick={handleLogout}
+              className="px-3.5 py-2 bg-red-700/90 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans"
+            >
+              <LogOut size={14} />
+              <span>DÉCONNEXION</span>
+            </button>
           </div>
         </div>
 
@@ -620,75 +640,111 @@ export const AccountPage: React.FC = () => {
         )}
 
         {/* 4 REAL HORIZONTAL KPI CLIENT CARDS */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 font-sans">
           
           <div
             onClick={() => handleTabChange('orders')}
-            className={`bg-pros-bone border p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
+            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
               activeTab === 'orders' ? 'border-black bg-white' : 'border-neutral-200'
             }`}
           >
-            <div className="flex justify-between items-center text-neutral-500 mb-2">
+            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider">COMMANDES</span>
               <Package size={18} className="text-black" />
             </div>
-            <div className="text-2xl font-bold font-mono text-black">{userOrders.length}</div>
-            <span className="text-[10px] font-mono text-neutral-500 block mt-1">Commandes effectuées</span>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-black">{userOrders.length}</div>
+            <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">Commandes effectuées</span>
           </div>
 
           <div
             onClick={() => handleTabChange('club')}
-            className={`bg-pros-bone border p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
+            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
               activeTab === 'club' ? 'border-black bg-white' : 'border-neutral-200'
             }`}
           >
-            <div className="flex justify-between items-center text-neutral-500 mb-2">
+            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider">PROS CLUB</span>
               <Award size={18} className="text-pros-gold" />
             </div>
-            <div className="text-2xl font-bold font-mono text-pros-gold">
+            <div className="text-xl sm:text-2xl font-bold font-mono text-pros-gold">
               {loyaltyMember?.availablePoints ?? 0}
             </div>
-            <span className="text-[10px] font-mono text-emerald-800 font-bold block mt-1">
+            <span className="text-[10px] font-mono text-emerald-800 font-bold block mt-0.5">
               Niveau {loyaltyMember?.levelName || 'BRONZE'}
             </span>
           </div>
 
           <div
             onClick={() => handleTabChange('wishlist')}
-            className={`bg-pros-bone border p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
+            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
               activeTab === 'wishlist' ? 'border-black bg-white' : 'border-neutral-200'
             }`}
           >
-            <div className="flex justify-between items-center text-neutral-500 mb-2">
+            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider">LISTE DE SOUHAITS</span>
               <Heart size={18} className="text-red-600" />
             </div>
-            <div className="text-2xl font-bold font-mono text-black">{userWishlistIds.length}</div>
-            <span className="text-[10px] font-mono text-neutral-500 block mt-1">Articles sauvegardés</span>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-black">{userWishlistIds.length}</div>
+            <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">Articles sauvegardés</span>
           </div>
 
           <div
             onClick={() => handleTabChange('addresses')}
-            className={`bg-pros-bone border p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
+            className={`bg-pros-bone border p-3.5 sm:p-4 cursor-pointer transition-all hover:border-black shadow-sm ${
               activeTab === 'addresses' ? 'border-black bg-white' : 'border-neutral-200'
             }`}
           >
-            <div className="flex justify-between items-center text-neutral-500 mb-2">
+            <div className="flex justify-between items-center text-neutral-500 mb-1.5">
               <span className="text-[10px] font-bold uppercase tracking-wider">ADRESSES</span>
               <MapPin size={18} className="text-black" />
             </div>
-            <div className="text-2xl font-bold font-mono text-black">{userAddresses.length}</div>
-            <span className="text-[10px] font-mono text-neutral-500 block mt-1">Adresses enregistrées</span>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-black">{userAddresses.length}</div>
+            <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">Adresses enregistrées</span>
           </div>
 
         </div>
 
-        {/* MAIN BODY: SIDEBAR TABS + ACTIVE TAB CONTENT */}
+        {/* MOBILE HORIZONTAL NAVIGATION TABS (INSTANT VIEW WITHOUT SCROLLING DOWN) */}
+        <div className="lg:hidden bg-pros-bone border border-neutral-200 p-2 overflow-x-auto flex items-center space-x-2 scrollbar-none font-sans">
+          {[
+            { id: 'overview', label: 'Aperçu', icon: Package },
+            { id: 'orders', label: 'Commandes', icon: ShoppingBag, badge: userOrders.length },
+            { id: 'club', label: 'PROS Club', icon: Award, badge: `${loyaltyMember?.availablePoints ?? 0} PTS` },
+            { id: 'wishlist', label: 'Favoris', icon: Heart, badge: userWishlistIds.length },
+            { id: 'profile', label: 'Informations', icon: User },
+            { id: 'addresses', label: 'Adresses', icon: MapPin, badge: userAddresses.length },
+            { id: 'returns', label: 'Retours', icon: RotateCcw, badge: userReturnRequests.length },
+            { id: 'security', label: 'Sécurité', icon: Lock },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleTabChange(item.id as any)}
+                className={`flex items-center space-x-1.5 px-3 py-2 text-xs font-bold whitespace-nowrap rounded-none transition-all cursor-pointer shrink-0 ${
+                  isActive
+                    ? 'bg-pros-black text-white'
+                    : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
+                }`}
+              >
+                <Icon size={14} className={isActive ? 'text-pros-gold' : 'text-neutral-400'} />
+                <span>{item.label}</span>
+                {item.badge !== undefined && (
+                  <span className={`text-[9px] font-mono px-1.5 py-0.2 ${isActive ? 'bg-pros-gold text-black' : 'bg-neutral-200 text-black'}`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* MAIN BODY: DESKTOP SIDEBAR TABS + ACTIVE TAB CONTENT */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
           
-          {/* SIDEBAR NAVIGATION */}
-          <aside className="lg:col-span-3 space-y-6">
+          {/* DESKTOP SIDEBAR NAVIGATION (HIDDEN ON MOBILE TO PREVENT VERTICAL STACKING) */}
+          <aside className="hidden lg:block lg:col-span-3 space-y-6">
             <div className="bg-pros-bone border border-neutral-200 p-4 space-y-1 shadow-sm font-sans">
               <h3 className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-mono">
                 MON ESPACE
