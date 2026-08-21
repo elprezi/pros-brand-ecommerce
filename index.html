@@ -34,6 +34,16 @@
   </head>
   <body class="bg-white text-pros-black antialiased selection:bg-pros-sand selection:text-black">
     <div id="root"></div>
+    <script>
+      // Force unregister any legacy service workers on mobile & PC
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
