@@ -14,7 +14,6 @@ import {
   Plus,
   Trash2,
   CheckCircle2,
-  ShoppingBag,
   X,
   Loader2,
   AlertCircle,
@@ -584,7 +583,7 @@ export const AccountPage: React.FC = () => {
     <div className="min-h-screen bg-white text-pros-black py-6 sm:py-10 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         
-        {/* UNIFIED LUXURY TOP HEADER BANNER WITH INTEGRATED STATS */}
+        {/* UNIFIED LUXURY TOP HEADER BANNER WITH ALL 6 NAVIGATION CARDS */}
         <div className="bg-pros-black text-white p-6 sm:p-8 border border-neutral-800 space-y-6 shadow-xl font-sans">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center space-x-4">
@@ -610,10 +609,18 @@ export const AccountPage: React.FC = () => {
 
             <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-start sm:justify-end border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
               <button
+                onClick={() => handleTabChange('club')}
+                className="px-3.5 py-2 bg-pros-gold hover:bg-yellow-400 text-black text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans shadow-md"
+              >
+                <Sparkles size={14} />
+                <span>OBTENIR MON LIEN PARRAINAGE</span>
+              </button>
+
+              <button
                 onClick={() => handleTabChange('profile')}
                 className={`px-3.5 py-2 text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans ${
                   activeTab === 'profile'
-                    ? 'bg-pros-gold text-black'
+                    ? 'bg-white text-black'
                     : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
                 }`}
               >
@@ -631,69 +638,87 @@ export const AccountPage: React.FC = () => {
                   <span>ACCÈS ADMIN</span>
                 </Link>
               )}
-
-              <button
-                onClick={handleLogout}
-                className="px-3.5 py-2 bg-red-700/90 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-wider flex items-center space-x-1.5 transition-all cursor-pointer font-sans"
-              >
-                <LogOut size={14} />
-                <span>DÉCONNEXION</span>
-              </button>
             </div>
           </div>
 
-          {/* INTEGRATED STATS BADGES (INSIDE THE BLACK HEADER BANNER) */}
-          <div className="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-sans">
+          {/* ALL 6 DIRECT NAVIGATION CARDS IN HEADER */}
+          <div className="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs font-sans">
             <button
               onClick={() => handleTabChange('orders')}
-              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
-                activeTab === 'orders' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              className={`p-3 bg-white/5 hover:bg-white/15 border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                activeTab === 'orders' ? 'border-pros-gold bg-white/20 ring-1 ring-pros-gold' : 'border-white/10'
               }`}
             >
-              <Package size={20} className="text-white shrink-0" />
-              <div>
-                <span className="text-[10px] text-white/60 font-mono block uppercase">COMMANDES</span>
-                <strong className="text-sm font-bold font-mono text-white">{userOrders.length} Commandes</strong>
+              <div className="flex justify-between items-center text-white/60 mb-2">
+                <span className="text-[9px] font-mono uppercase font-bold">COMMANDES</span>
+                <Package size={16} className={activeTab === 'orders' ? 'text-pros-gold' : 'text-white'} />
               </div>
+              <strong className="text-sm font-bold font-mono text-white">{userOrders.length} Achats</strong>
             </button>
 
             <button
               onClick={() => handleTabChange('club')}
-              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
-                activeTab === 'club' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              className={`p-3 bg-white/5 hover:bg-white/15 border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                activeTab === 'club' ? 'border-pros-gold bg-white/20 ring-1 ring-pros-gold' : 'border-white/10'
               }`}
             >
-              <Award size={20} className="text-pros-gold shrink-0" />
-              <div>
-                <span className="text-[10px] text-white/60 font-mono block uppercase">PARRAINAGE</span>
-                <strong className="text-sm font-bold font-mono text-pros-gold">{loyaltyMember?.availablePoints ?? 0} PTS</strong>
+              <div className="flex justify-between items-center text-white/60 mb-2">
+                <span className="text-[9px] font-mono uppercase font-bold">PARRAINAGE</span>
+                <Award size={16} className="text-pros-gold" />
               </div>
+              <strong className="text-sm font-bold font-mono text-pros-gold">{loyaltyMember?.availablePoints ?? 0} PTS</strong>
             </button>
 
             <button
               onClick={() => handleTabChange('wishlist')}
-              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
-                activeTab === 'wishlist' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              className={`p-3 bg-white/5 hover:bg-white/15 border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                activeTab === 'wishlist' ? 'border-pros-gold bg-white/20 ring-1 ring-pros-gold' : 'border-white/10'
               }`}
             >
-              <Heart size={20} className="text-red-500 shrink-0" />
-              <div>
-                <span className="text-[10px] text-white/60 font-mono block uppercase">SOUHAITS</span>
-                <strong className="text-sm font-bold font-mono text-white">{userWishlistIds.length} Favoris</strong>
+              <div className="flex justify-between items-center text-white/60 mb-2">
+                <span className="text-[9px] font-mono uppercase font-bold">FAVORIS</span>
+                <Heart size={16} className="text-red-500" />
               </div>
+              <strong className="text-sm font-bold font-mono text-white">{userWishlistIds.length} Souhaits</strong>
             </button>
 
             <button
               onClick={() => handleTabChange('addresses')}
-              className={`p-3 bg-white/5 hover:bg-white/10 border transition-all text-left flex items-center space-x-3 cursor-pointer ${
-                activeTab === 'addresses' ? 'border-pros-gold bg-white/15' : 'border-white/10'
+              className={`p-3 bg-white/5 hover:bg-white/15 border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                activeTab === 'addresses' ? 'border-pros-gold bg-white/20 ring-1 ring-pros-gold' : 'border-white/10'
               }`}
             >
-              <MapPin size={20} className="text-white shrink-0" />
-              <div>
-                <span className="text-[10px] text-white/60 font-mono block uppercase">ADRESSES</span>
-                <strong className="text-sm font-bold font-mono text-white">{userAddresses.length} Adresses</strong>
+              <div className="flex justify-between items-center text-white/60 mb-2">
+                <span className="text-[9px] font-mono uppercase font-bold">ADRESSES</span>
+                <MapPin size={16} className={activeTab === 'addresses' ? 'text-pros-gold' : 'text-white'} />
               </div>
+              <strong className="text-sm font-bold font-mono text-white">{userAddresses.length} Adresses</strong>
+            </button>
+
+            <button
+              onClick={() => handleTabChange('returns')}
+              className={`p-3 bg-white/5 hover:bg-white/15 border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                activeTab === 'returns' ? 'border-pros-gold bg-white/20 ring-1 ring-pros-gold' : 'border-white/10'
+              }`}
+            >
+              <div className="flex justify-between items-center text-white/60 mb-2">
+                <span className="text-[9px] font-mono uppercase font-bold">RETOURS</span>
+                <RotateCcw size={16} className={activeTab === 'returns' ? 'text-pros-gold' : 'text-white'} />
+              </div>
+              <strong className="text-sm font-bold font-mono text-white">{userReturnRequests.length} Retours</strong>
+            </button>
+
+            <button
+              onClick={() => handleTabChange('security')}
+              className={`p-3 bg-white/5 hover:bg-white/15 border transition-all text-left flex flex-col justify-between cursor-pointer ${
+                activeTab === 'security' ? 'border-pros-gold bg-white/20 ring-1 ring-pros-gold' : 'border-white/10'
+              }`}
+            >
+              <div className="flex justify-between items-center text-white/60 mb-2">
+                <span className="text-[9px] font-mono uppercase font-bold">SÉCURITÉ</span>
+                <Lock size={16} className={activeTab === 'security' ? 'text-pros-gold' : 'text-white'} />
+              </div>
+              <strong className="text-sm font-bold font-mono text-white">Mot de passe</strong>
             </button>
           </div>
         </div>
@@ -723,108 +748,8 @@ export const AccountPage: React.FC = () => {
           </div>
         )}
 
-        {/* MOBILE HORIZONTAL NAVIGATION TABS (INSTANT VIEW WITHOUT SCROLLING DOWN) */}
-        <div className="lg:hidden bg-pros-bone border border-neutral-200 p-2 overflow-x-auto flex items-center space-x-2 scrollbar-none font-sans">
-          {[
-            { id: 'overview', label: 'Aperçu', icon: Package },
-            { id: 'orders', label: 'Commandes', icon: ShoppingBag, badge: userOrders.length },
-            { id: 'club', label: 'PROS Club', icon: Award, badge: `${loyaltyMember?.availablePoints ?? 0} PTS` },
-            { id: 'wishlist', label: 'Favoris', icon: Heart, badge: userWishlistIds.length },
-            { id: 'profile', label: 'Informations', icon: User },
-            { id: 'addresses', label: 'Adresses', icon: MapPin, badge: userAddresses.length },
-            { id: 'returns', label: 'Retours', icon: RotateCcw, badge: userReturnRequests.length },
-            { id: 'security', label: 'Sécurité', icon: Lock },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleTabChange(item.id as any)}
-                className={`flex items-center space-x-1.5 px-3 py-2 text-xs font-bold whitespace-nowrap rounded-none transition-all cursor-pointer shrink-0 ${
-                  isActive
-                    ? 'bg-pros-black text-white'
-                    : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
-                }`}
-              >
-                <Icon size={14} className={isActive ? 'text-pros-gold' : 'text-neutral-400'} />
-                <span>{item.label}</span>
-                {item.badge !== undefined && (
-                  <span className={`text-[9px] font-mono px-1.5 py-0.2 ${isActive ? 'bg-pros-gold text-black' : 'bg-neutral-200 text-black'}`}>
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* MAIN BODY: DESKTOP SIDEBAR TABS + ACTIVE TAB CONTENT */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
-          
-          {/* DESKTOP SIDEBAR NAVIGATION (HIDDEN ON MOBILE TO PREVENT VERTICAL STACKING) */}
-          <aside className="hidden lg:block lg:col-span-3 space-y-6">
-            <div className="bg-pros-bone border border-neutral-200 p-4 space-y-1 shadow-sm font-sans">
-              <h3 className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-mono">
-                MON ESPACE
-              </h3>
-
-              {[
-                { id: 'overview', label: 'Tableau de bord', icon: Package },
-                { id: 'orders', label: 'Mes commandes', icon: ShoppingBag, badge: userOrders.length },
-                { id: 'club', label: 'PROS Club', icon: Award, badge: `${loyaltyMember?.availablePoints ?? 0} PTS` },
-                { id: 'wishlist', label: 'Ma liste de souhaits', icon: Heart, badge: userWishlistIds.length },
-                { id: 'profile', label: 'Mes informations', icon: User },
-                { id: 'addresses', label: 'Mes adresses', icon: MapPin, badge: userAddresses.length },
-                { id: 'returns', label: 'Retours & remboursements', icon: RotateCcw, badge: userReturnRequests.length },
-                { id: 'security', label: 'Sécurité & mot de passe', icon: Lock },
-              ].map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleTabChange(item.id as any)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-pros-black text-white font-sans shadow-sm'
-                        : 'text-neutral-700 hover:bg-neutral-200/60 hover:text-black font-sans'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2.5">
-                      <Icon size={16} className={isActive ? 'text-pros-gold' : 'text-neutral-400'} />
-                      <span>{item.label}</span>
-                    </div>
-
-                    {item.badge !== undefined && (
-                      <span
-                        className={`text-[10px] font-mono font-bold px-2 py-0.5 ${
-                          isActive
-                            ? 'bg-pros-gold text-black'
-                            : 'bg-neutral-200 text-neutral-800'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              <div className="pt-3 border-t border-neutral-200 mt-3">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center space-x-2 px-3 py-2.5 text-xs font-bold text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
-                >
-                  <LogOut size={16} />
-                  <span>SE DÉCONNECTER</span>
-                </button>
-              </div>
-            </div>
-          </aside>
-
-          {/* MAIN TAB CONTENT AREA */}
-          <main className="lg:col-span-9 space-y-6">
+        {/* MAIN BODY: DIRECT ACTIVE TAB CONTENT AREA */}
+        <main className="w-full space-y-6">
 
             {/* TAB 1: MES COMMANDES */}
             {activeTab === 'orders' && (
@@ -1454,9 +1379,7 @@ export const AccountPage: React.FC = () => {
                 </div>
               </form>
             )}
-
           </main>
-        </div>
 
         {/* MODAL 1: ADD / EDIT DELIVERY ADDRESS */}
         {isAddAddressModalOpen && (
@@ -1766,6 +1689,20 @@ export const AccountPage: React.FC = () => {
             </form>
           </div>
         )}
+
+        {/* DEDICATED BOTTOM LOGOUT FOOTER BAR */}
+        <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 font-sans text-neutral-500 my-6">
+          <span className="text-xs font-mono text-neutral-500">
+            Compte client actif : <strong className="text-black">{currentUser.email}</strong>
+          </span>
+          <button
+            onClick={handleLogout}
+            className="px-5 py-2.5 bg-neutral-100 hover:bg-red-50 hover:text-red-700 text-neutral-800 text-xs font-bold uppercase tracking-wider border border-neutral-300 flex items-center space-x-2 transition-all cursor-pointer font-sans shadow-sm"
+          >
+            <LogOut size={14} className="text-red-600" />
+            <span>SE DÉCONNECTER DE MON COMPTE PROS</span>
+          </button>
+        </div>
 
       </div>
     </div>
