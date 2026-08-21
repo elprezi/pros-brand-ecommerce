@@ -2,11 +2,13 @@ import React, { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Filter, RefreshCw, Package, Plus } from 'lucide-react';
 import { useStore } from '../store/storeContext';
+import { useAuth } from '../store/authContext';
 import { ProductCard } from '../components/product/ProductCard';
 import type { Category, ProductBadge, ProductSize } from '../types/ecommerce';
 
 export const ShopPage: React.FC = () => {
   const { products } = useStore();
+  const { currentUser } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Active Filter state reading from URL
@@ -224,10 +226,12 @@ export const ShopPage: React.FC = () => {
                 <p className="text-xs text-neutral-600 leading-relaxed font-sans">
                   Votre catalogue officiel PROS est actuellement vide. Les nouvelles pièces exclusives de la collection seront publiées très prochainement.
                 </p>
-                <Link to="/admin/products" className="inline-flex items-center gap-2 px-6 py-3 bg-pros-black text-white font-bold text-xs uppercase tracking-superwide hover:bg-neutral-800 transition-colors font-sans mt-2">
-                  <Plus size={16} />
-                  <span>AJOUTER UN PRODUIT DANS L'ADMIN</span>
-                </Link>
+                {currentUser?.role === 'ADMIN' && (
+                  <Link to="/admin/products" className="inline-flex items-center gap-2 px-6 py-3 bg-pros-black text-white font-bold text-xs uppercase tracking-superwide hover:bg-neutral-800 transition-colors font-sans mt-2">
+                    <Plus size={16} />
+                    <span>AJOUTER UN PRODUIT DANS L'ADMIN</span>
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

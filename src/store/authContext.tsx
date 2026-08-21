@@ -86,7 +86,7 @@ const ROLES_STORAGE_KEY = 'pros_rbac_roles_v3';
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(() => {
     const saved = localStorage.getItem(AUTH_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : PRIMARY_ADMIN;
+    return saved ? JSON.parse(saved) : null;
   });
 
   const [roles, setRoles] = useState<RoleDefinition[]>(() => {

@@ -14,7 +14,7 @@ export const WhatsAppWidget: React.FC = () => {
       href={whatsAppUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-40 bg-[#25D366] text-black font-bold p-3.5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center group"
+      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 bg-[#25D366] text-black font-bold p-3.5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center group"
       aria-label="Contactez-nous sur WhatsApp"
       title="Service Client PROS sur WhatsApp"
     >
